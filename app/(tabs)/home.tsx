@@ -10,6 +10,7 @@ import {
     Text,
     View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { API_URL } from '../../config/api';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -88,7 +89,7 @@ export default function HomeScreen() {
     }
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             {posts.length === 0 ? (
                 <View style={styles.centerContainer}>
                     <Text style={styles.emptyText}>No posts yet</Text>
@@ -111,14 +112,14 @@ export default function HomeScreen() {
                     contentContainerStyle={styles.listContainer}
                 />
             )}
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#ffffffff',
     },
     centerContainer: {
         flex: 1,

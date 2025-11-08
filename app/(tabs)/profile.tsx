@@ -15,6 +15,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
     const { user, token, logout } = useAuth();
@@ -178,7 +179,7 @@ export default function ProfileScreen() {
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <ScrollView
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -294,14 +295,14 @@ export default function ProfileScreen() {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#ffffffff',
     },
     header: {
         backgroundColor: '#fff',

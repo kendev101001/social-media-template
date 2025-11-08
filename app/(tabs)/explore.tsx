@@ -14,6 +14,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ExploreScreen() {
     const { user, token } = useAuth();
@@ -143,7 +144,7 @@ export default function ExploreScreen() {
     }
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.searchContainer}>
                 <TextInput
                     style={styles.searchInput}
@@ -200,14 +201,14 @@ export default function ExploreScreen() {
                     }
                 />
             )}
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#ffffffff',
     },
     centerContainer: {
         flex: 1,
