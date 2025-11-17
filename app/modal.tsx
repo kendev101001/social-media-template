@@ -1,171 +1,26 @@
-// START of MODEL_A solution ------------------------------------------------------------------------------------------------------------------------
-import { API_URL } from '@/config/api';
-import { useAuth } from '@/contexts/AuthContext';
-import { router } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
-import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import { Link } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function ModalScreen() {
-    const { token } = useAuth();
-    const [newPostContent, setNewPostContent] = useState('');
-    const [posting, setPosting] = useState(false);
-
-    const handleCreatePost = async () => {
-        if (!newPostContent.trim()) {
-            Alert.alert('Error', 'Post content cannot be empty');
-            return;
-        }
-
-        setPosting(true);
-        try {
-            const response = await fetch(`${API_URL}/posts`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({ content: newPostContent }),
-            });
-
-            if (response.ok) {
-                // Go back to profile - it will refetch due to useFocusEffect
-                router.back();
-            } else {
-                Alert.alert('Error', 'Failed to create post');
-            }
-        } catch (error) {
-            console.error('Post error:', error);
-            Alert.alert('Error', 'Network error');
-        } finally {
-            setPosting(false);
-        }
-    };
-
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
-            <View style={styles.content}>
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Text style={styles.cancelButton}>Cancel</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.title}>Create New Post</Text>
-                    <TouchableOpacity
-                        onPress={handleCreatePost}
-                        disabled={posting || !newPostContent.trim()}
-                    >
-                        <Text style={[
-                            styles.postButton,
-                            (posting || !newPostContent.trim()) && styles.postButtonDisabled
-                        ]}>
-                            {posting ? 'Posting...' : 'Post'}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-
-                <TextInput
-                    style={styles.postInput}
-                    placeholder="What's on your mind?"
-                    multiline
-                    value={newPostContent}
-                    onChangeText={setNewPostContent}
-                    maxLength={500}
-                    editable={!posting}
-                    autoFocus
-                />
-
-                <Text style={styles.charCount}>
-                    {newPostContent.length}/500
-                </Text>
-            </View>
-
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
-        </KeyboardAvoidingView>
+        <View style={styles.container}>
+            <Text>This is a modal</Text>
+            <Link href="/" dismissTo style={styles.link}>
+                <Text>Go to home screen</Text>
+            </Link>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
-    },
-    content: {
-        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
         padding: 20,
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20,
-        paddingTop: 10,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    cancelButton: {
-        fontSize: 16,
-        color: '#007AFF',
-    },
-    postButton: {
-        fontSize: 16,
-        color: '#007AFF',
-        fontWeight: '600',
-    },
-    postButtonDisabled: {
-        color: '#ccc',
-    },
-    postInput: {
-        flex: 1,
-        fontSize: 16,
-        textAlignVertical: 'top',
-        paddingTop: 10,
-    },
-    charCount: {
-        textAlign: 'right',
-        color: '#666',
-        marginTop: 10,
-        fontSize: 12,
+    link: {
+        marginTop: 15,
+        paddingVertical: 15,
     },
 });
-// END of MODEL_A solution ------------------------------------------------------------------------------------------------------------------------
-
-// import { Link } from 'expo-router';
-// import { StyleSheet, Text, View } from 'react-native';
-
-// export default function ModalScreen() {
-//     return (
-//         <View style={styles.container}>
-//             <Text>This is a modal</Text>
-//             <Link href="/" dismissTo style={styles.link}>
-//                 <Text>Go to home screen</Text>
-//             </Link>
-//         </View>
-//     );
-// }
-
-// const styles = StyleSheet.create({
-//     container: {
-//         flex: 1,
-//         alignItems: 'center',
-//         justifyContent: 'center',
-//         padding: 20,
-//     },
-//     link: {
-//         marginTop: 15,
-//         paddingVertical: 15,
-//     },
-// });
