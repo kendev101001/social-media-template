@@ -1,9 +1,11 @@
 
 
+import PostCard from '@/components/PostCard';
 import { API_URL } from '@/config/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Post } from '@/types/types';
 import { Feather, Ionicons } from '@expo/vector-icons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Href, router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
@@ -146,9 +148,9 @@ export default function ProfileScreen() {
         <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity>
+                {/* <TouchableOpacity>
                     <Ionicons name="lock-closed-outline" size={16} color="#000" />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 <View style={styles.usernameHeader}>
                     <Text style={styles.headerUsername}>{user?.username}</Text>
                     <Ionicons name="chevron-down" size={16} color="#000" />
@@ -218,100 +220,71 @@ export default function ProfileScreen() {
                         <TouchableOpacity style={styles.editButton}>
                             <Text style={styles.editButtonText}>Edit profile</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.shareButton}>
+                        {/* <TouchableOpacity style={styles.shareButton}>
                             <Text style={styles.shareButtonText}>Share profile</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.addFriendButton}>
+                        </TouchableOpacity> */}
+                        {/* <TouchableOpacity style={styles.addFriendButton}>
                             <Ionicons name="person-add-outline" size={16} color="#000" />
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
-
-                    {/* Story Highlights */}
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.highlightsContainer}
-                    >
-                        <TouchableOpacity style={styles.highlightItem}>
-                            <View style={styles.highlightCircle}>
-                                <Ionicons name="add" size={24} color="#000" />
-                            </View>
-                            <Text style={styles.highlightLabel}>New</Text>
-                        </TouchableOpacity>
-                        {['Travel', 'Food', 'Fitness', 'Work'].map((item, index) => (
-                            <TouchableOpacity key={index} style={styles.highlightItem}>
-                                <View style={styles.highlightCircleFilled}>
-                                    <Text style={styles.highlightEmoji}>
-                                        {['✈️', '🍕', '💪', '💼'][index]}
-                                    </Text>
-                                </View>
-                                <Text style={styles.highlightLabel}>{item}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
                 </View>
 
                 {/* Tab Bar */}
+                <Text style={styles.sectionTitle}>My Posts</Text>
                 <View style={styles.tabBar}>
                     <TouchableOpacity
-                        style={[styles.tab, activeTab === 'grid' && styles.activeTab]}
-                        onPress={() => setActiveTab('grid')}
+                        style={[styles.tab, activeTab === 'main' && styles.activeTab]}
+                        onPress={() => setActiveTab('main')}
                     >
-                        <Ionicons
-                            name="grid-outline"
+                        <Feather
+                            name="menu"
                             size={24}
-                            color={activeTab === 'grid' ? '#000' : '#999'}
+                            color={activeTab === 'main' ? '#000' : '#999'}
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.tab, activeTab === 'reels' && styles.activeTab]}
-                        onPress={() => setActiveTab('reels')}
+                        style={[styles.tab, activeTab === 'media' && styles.activeTab]}
+                        onPress={() => setActiveTab('media')}
                     >
-                        <Ionicons
-                            name="play-circle-outline"
+                        <MaterialIcons
+                            name="insert-photo"
                             size={24}
-                            color={activeTab === 'reels' ? '#000' : '#999'}
+                            color={activeTab === 'media' ? '#000' : '#999'}
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.tab, activeTab === 'tagged' && styles.activeTab]}
-                        onPress={() => setActiveTab('tagged')}
+                        style={[styles.tab, activeTab === 'bookmarked' && styles.activeTab]}
+                        onPress={() => setActiveTab('bookmarked')}
                     >
                         <Ionicons
-                            name="person-outline"
+                            name="bookmark-outline"
                             size={24}
-                            color={activeTab === 'tagged' ? '#000' : '#999'}
+                            color={activeTab === 'bookmarked' ? '#000' : '#999'}
                         />
                     </TouchableOpacity>
                 </View>
 
-                {/* Posts Grid or List */}
-                {posts.length === 0 ? (
-                    <View style={styles.emptyContainer}>
-                        <View style={styles.emptyIcon}>
-                            <Ionicons name="camera-outline" size={48} color="#000" />
+                <View style={styles.postsSection}>
+                    {posts.length === 0 ? (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>No posts yet</Text>
+                            <Text style={styles.emptySubtext}>
+                                Tap "New Post" to create your first post
+                            </Text>
                         </View>
-                        <Text style={styles.emptyTitle}>Share Photos</Text>
-                        <Text style={styles.emptySubtext}>
-                            When you share photos, they will appear on your profile.
-                        </Text>
-                        <TouchableOpacity onPress={() => router.push('/modal')}>
-                            <Text style={styles.emptyLink}>Share your first photo</Text>
-                        </TouchableOpacity>
-                    </View>
-                ) : (
-                    <View style={styles.postsGrid}>
-                        {posts.map((post, index) => (
-                            <TouchableOpacity key={post.id} style={styles.gridItem}>
-                                <View style={styles.gridItemContent}>
-                                    <Text style={styles.gridItemText} numberOfLines={3}>
-                                        {post.content}
-                                    </Text>
-                                </View>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                )}
+                    ) : (
+                        posts.map((post) => (
+                            <PostCard
+                                key={post.id}
+                                post={post}
+                                onLike={handleLike}
+                                onDelete={handleDeletePost}
+                                currentUserId={user!.id}
+                                showDelete={true}
+                            />
+                        ))
+                    )}
+                </View>
             </ScrollView>
         </SafeAreaView>
     );
@@ -322,6 +295,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -331,39 +305,49 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0.5,
         borderBottomColor: '#dbdbdb',
     },
+
     usernameHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
     },
+
     headerUsername: {
         fontSize: 20,
         fontWeight: '700',
     },
+
     headerRight: {
         flexDirection: 'row',
         alignItems: 'center',
     },
+
     headerIcon: {
         marginLeft: 20,
     },
+
     profileSection: {
         paddingHorizontal: 16,
+        marginBottom: 16
     },
+
     profileTop: {
         flexDirection: 'row',
         alignItems: 'center',
         marginTop: 16,
     },
+
     avatarContainer: {
         marginRight: 28,
     },
+
     avatarGradient: {
         width: 86,
         height: 86,
         borderRadius: 43,
         padding: 3,
     },
+
     avatarInner: {
         flex: 1,
         backgroundColor: '#fff',
@@ -371,24 +355,29 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+
     avatarText: {
         fontSize: 32,
         fontWeight: '600',
         color: '#000',
     },
+
     statsContainer: {
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-around',
     },
+
     statItem: {
         alignItems: 'center',
     },
+
     statNumber: {
         fontSize: 18,
         fontWeight: '700',
         color: '#000',
     },
+
     statLabel: {
         fontSize: 13,
         color: '#000',
@@ -397,27 +386,32 @@ const styles = StyleSheet.create({
     bioSection: {
         marginTop: 12,
     },
+
     displayName: {
         fontSize: 14,
         fontWeight: '600',
         color: '#000',
     },
+
     bioText: {
         fontSize: 14,
         color: '#000',
         lineHeight: 20,
     },
+
     websiteLink: {
         fontSize: 14,
         color: '#00376b',
         fontWeight: '500',
         marginTop: 2,
     },
+
     actionButtons: {
         flexDirection: 'row',
         marginTop: 16,
         gap: 8,
     },
+
     editButton: {
         flex: 1,
         backgroundColor: '#efefef',
@@ -425,39 +419,23 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         alignItems: 'center',
     },
+
     editButtonText: {
         fontSize: 14,
         fontWeight: '600',
         color: '#000',
     },
-    shareButton: {
-        flex: 1,
-        backgroundColor: '#efefef',
-        paddingVertical: 8,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    shareButtonText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#000',
-    },
-    addFriendButton: {
-        backgroundColor: '#efefef',
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+
     highlightsContainer: {
         marginTop: 16,
         marginBottom: 8,
     },
+
     highlightItem: {
         alignItems: 'center',
         marginRight: 16,
     },
+
     highlightCircle: {
         width: 64,
         height: 64,
@@ -468,6 +446,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#fff',
     },
+
     highlightCircleFilled: {
         width: 64,
         height: 64,
@@ -476,19 +455,23 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+
     highlightEmoji: {
         fontSize: 24,
     },
+
     highlightLabel: {
         fontSize: 12,
         marginTop: 4,
         color: '#000',
     },
+
     tabBar: {
         flexDirection: 'row',
         borderTopWidth: 0.5,
         borderTopColor: '#dbdbdb',
     },
+
     tab: {
         flex: 1,
         alignItems: 'center',
@@ -496,60 +479,38 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: 'transparent',
     },
+
     activeTab: {
         borderBottomColor: '#000',
     },
+
+    postsSection: {
+        flex: 1,
+        paddingVertical: 10,
+    },
+
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        color: '#333',
+    },
+
     emptyContainer: {
         alignItems: 'center',
-        paddingVertical: 60,
-        paddingHorizontal: 40,
+        paddingVertical: 50,
     },
-    emptyIcon: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        borderWidth: 2,
-        borderColor: '#000',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 16,
+
+    emptyText: {
+        fontSize: 16,
+        color: '#666',
+        marginBottom: 5,
     },
-    emptyTitle: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#000',
-        marginBottom: 8,
-    },
+
     emptySubtext: {
         fontSize: 14,
         color: '#999',
-        textAlign: 'center',
-        marginBottom: 16,
-    },
-    emptyLink: {
-        fontSize: 14,
-        color: '#0095f6',
-        fontWeight: '600',
-    },
-    postsGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-    },
-    gridItem: {
-        width: width / 3,
-        height: width / 3,
-        borderWidth: 0.5,
-        borderColor: '#fff',
-    },
-    gridItemContent: {
-        flex: 1,
-        backgroundColor: '#f0f0f0',
-        padding: 8,
-        justifyContent: 'center',
-    },
-    gridItemText: {
-        fontSize: 12,
-        color: '#333',
     },
 });
 
