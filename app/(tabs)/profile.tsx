@@ -1,3 +1,5 @@
+
+
 import PostCard from '@/components/PostCard';
 import { API_URL } from '@/config/api';
 import { useAuth } from '@/contexts/AuthContext';
@@ -122,6 +124,20 @@ export default function ProfileScreen() {
         ]);
     };
 
+    const handleLogout = () => {
+        Alert.alert('Logout', 'Are you sure you want to logout?', [
+            { text: 'Cancel', style: 'cancel' },
+            {
+                text: 'Logout',
+                style: 'destructive',
+                onPress: () => {
+                    logout();
+                    router.replace('/(auth)/login' as Href);
+                },
+            },
+        ]);
+    };
+
     const formatNumber = (num: number) => {
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
         if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
@@ -137,10 +153,10 @@ export default function ProfileScreen() {
                     <Ionicons name="chevron-down" size={16} color="#000" />
                 </View>
                 <View style={styles.headerRight}>
-                    <TouchableOpacity
-                        style={styles.headerIcon}
-                        onPress={() => router.push('/settings' as Href)}
-                    >
+                    <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/modal')}>
+                        <Feather name="plus-square" size={24} color="#000" />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.headerIcon} onPress={handleLogout}>
                         <Octicons name="gear" size={24} color="black" />
                     </TouchableOpacity>
                 </View>
@@ -201,6 +217,12 @@ export default function ProfileScreen() {
                         <TouchableOpacity style={styles.editButton}>
                             <Text style={styles.editButtonText}>Edit profile</Text>
                         </TouchableOpacity>
+                        {/* <TouchableOpacity style={styles.shareButton}>
+                            <Text style={styles.shareButtonText}>Share profile</Text>
+                        </TouchableOpacity> */}
+                        {/* <TouchableOpacity style={styles.addFriendButton}>
+                            <Ionicons name="person-add-outline" size={16} color="#000" />
+                        </TouchableOpacity> */}
                     </View>
                 </View>
 
@@ -244,7 +266,7 @@ export default function ProfileScreen() {
                         <View style={styles.emptyContainer}>
                             <Text style={styles.emptyText}>No posts yet</Text>
                             <Text style={styles.emptySubtext}>
-                                Tap the + button to create your first post
+                                Tap "New Post" to create your first post
                             </Text>
                         </View>
                     ) : (
@@ -261,22 +283,6 @@ export default function ProfileScreen() {
                     )}
                 </View>
             </ScrollView>
-
-            {/* Floating Action Button */}
-            <TouchableOpacity
-                style={styles.fab}
-                onPress={() => router.push('/modal')}
-                activeOpacity={0.8}
-            >
-                <LinearGradient
-                    colors={['#F58529', '#DD2A7B', '#8134AF']}
-                    style={styles.fabGradient}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                >
-                    <Feather name="plus" size={28} color="#fff" />
-                </LinearGradient>
-            </TouchableOpacity>
         </SafeAreaView>
     );
 }
@@ -417,6 +423,46 @@ const styles = StyleSheet.create({
         color: '#000',
     },
 
+    highlightsContainer: {
+        marginTop: 16,
+        marginBottom: 8,
+    },
+
+    highlightItem: {
+        alignItems: 'center',
+        marginRight: 16,
+    },
+
+    highlightCircle: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        borderWidth: 1,
+        borderColor: '#dbdbdb',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+
+    highlightCircleFilled: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        backgroundColor: '#efefef',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    highlightEmoji: {
+        fontSize: 24,
+    },
+
+    highlightLabel: {
+        fontSize: 12,
+        marginTop: 4,
+        color: '#000',
+    },
+
     tabBar: {
         flexDirection: 'row',
         borderTopWidth: 0.5,
@@ -463,27 +509,5 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#999',
     },
-
-    // New FAB styles
-    fab: {
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        elevation: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
-
-    fabGradient: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
 });
+
