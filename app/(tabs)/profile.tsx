@@ -4,7 +4,7 @@ import PostCard from '@/components/PostCard';
 import { API_URL } from '@/config/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Post } from '@/types/types';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons, Octicons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Href, router, useFocusEffect } from 'expo-router';
@@ -148,9 +148,6 @@ export default function ProfileScreen() {
         <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                {/* <TouchableOpacity>
-                    <Ionicons name="lock-closed-outline" size={16} color="#000" />
-                </TouchableOpacity> */}
                 <View style={styles.usernameHeader}>
                     <Text style={styles.headerUsername}>{user?.username}</Text>
                     <Ionicons name="chevron-down" size={16} color="#000" />
@@ -160,7 +157,7 @@ export default function ProfileScreen() {
                         <Feather name="plus-square" size={24} color="#000" />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.headerIcon} onPress={handleLogout}>
-                        <Feather name="menu" size={24} color="#000" />
+                        <Octicons name="gear" size={24} color="black" />
                     </TouchableOpacity>
                 </View>
             </View>
