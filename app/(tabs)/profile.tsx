@@ -1,5 +1,3 @@
-
-
 import PostCard from '@/components/PostCard';
 import { API_URL } from '@/config/api';
 import { useAuth } from '@/contexts/AuthContext';
@@ -112,27 +110,23 @@ export default function ProfileScreen() {
                         });
 
                         if (response.ok) {
-                            setPosts(posts.filter(post => post.id !== postId));
-                            setStats({ ...stats, posts: stats.posts - 1 });
+                            setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+                            setStats(prevStats => ({
+                                ...prevStats,
+                                posts: prevStats.posts - 1
+                            }));
+                        } else {
+                            const errorData = await response.json().catch(() => ({}));
+                            console.log('Error response:', errorData);
+                            Alert.alert(
+                                'Error',
+                                errorData.message || `Failed to delete post (${response.status})`
+                            );
                         }
                     } catch (error) {
                         console.error('Delete error:', error);
-                        Alert.alert('Error', 'Failed to delete post');
+                        Alert.alert('Error', 'Failed to delete post. Please check your connection.');
                     }
-                },
-            },
-        ]);
-    };
-
-    const handleLogout = () => {
-        Alert.alert('Logout', 'Are you sure you want to logout?', [
-            { text: 'Cancel', style: 'cancel' },
-            {
-                text: 'Logout',
-                style: 'destructive',
-                onPress: () => {
-                    logout();
-                    router.replace('/(auth)/login' as Href);
                 },
             },
         ]);
@@ -153,10 +147,10 @@ export default function ProfileScreen() {
                     <Ionicons name="chevron-down" size={16} color="#000" />
                 </View>
                 <View style={styles.headerRight}>
-                    <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/modal')}>
-                        <Feather name="plus-square" size={24} color="#000" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.headerIcon} onPress={handleLogout}>
+                    <TouchableOpacity
+                        style={styles.headerIcon}
+                        onPress={() => router.push('/settings' as Href)}
+                    >
                         <Octicons name="gear" size={24} color="black" />
                     </TouchableOpacity>
                 </View>
@@ -217,12 +211,6 @@ export default function ProfileScreen() {
                         <TouchableOpacity style={styles.editButton}>
                             <Text style={styles.editButtonText}>Edit profile</Text>
                         </TouchableOpacity>
-                        {/* <TouchableOpacity style={styles.shareButton}>
-                            <Text style={styles.shareButtonText}>Share profile</Text>
-                        </TouchableOpacity> */}
-                        {/* <TouchableOpacity style={styles.addFriendButton}>
-                            <Ionicons name="person-add-outline" size={16} color="#000" />
-                        </TouchableOpacity> */}
                     </View>
                 </View>
 
@@ -266,7 +254,7 @@ export default function ProfileScreen() {
                         <View style={styles.emptyContainer}>
                             <Text style={styles.emptyText}>No posts yet</Text>
                             <Text style={styles.emptySubtext}>
-                                Tap "New Post" to create your first post
+                                Tap the + button to create your first post
                             </Text>
                         </View>
                     ) : (
@@ -283,6 +271,22 @@ export default function ProfileScreen() {
                     )}
                 </View>
             </ScrollView>
+
+            {/* Floating Action Button */}
+            <TouchableOpacity
+                style={styles.fab}
+                onPress={() => router.push('/modal')}
+                activeOpacity={0.8}
+            >
+                <LinearGradient
+                    colors={['#F58529', '#DD2A7B', '#8134AF', '#515BD4']}
+                    style={styles.fabGradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                >
+                    <Feather name="plus" size={28} color="#fff" />
+                </LinearGradient>
+            </TouchableOpacity>
         </SafeAreaView>
     );
 }
@@ -423,46 +427,6 @@ const styles = StyleSheet.create({
         color: '#000',
     },
 
-    highlightsContainer: {
-        marginTop: 16,
-        marginBottom: 8,
-    },
-
-    highlightItem: {
-        alignItems: 'center',
-        marginRight: 16,
-    },
-
-    highlightCircle: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
-        borderWidth: 1,
-        borderColor: '#dbdbdb',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-    },
-
-    highlightCircleFilled: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
-        backgroundColor: '#efefef',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-
-    highlightEmoji: {
-        fontSize: 24,
-    },
-
-    highlightLabel: {
-        fontSize: 12,
-        marginTop: 4,
-        color: '#000',
-    },
-
     tabBar: {
         flexDirection: 'row',
         borderTopWidth: 0.5,
@@ -509,5 +473,23 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#999',
     },
-});
 
+    fab: {
+        position: 'absolute',
+        bottom: 24,
+        right: 24,
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+    },
+
+    fabGradient: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});
