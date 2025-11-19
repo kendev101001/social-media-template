@@ -20,7 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ExploreScreen() {
     const { user, token } = useAuth();
-    const { posts, setPosts, handleLike } = usePosts();
+    const { posts, setPosts, handleLike, handleComment } = usePosts();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -161,6 +161,7 @@ export default function ExploreScreen() {
                         <PostCard
                             post={item}
                             onLike={handleLike}
+                            onComment={handleComment}
                             currentUserId={user!.id}
                         />
                     )}

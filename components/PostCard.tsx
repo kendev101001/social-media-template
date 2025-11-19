@@ -12,7 +12,7 @@ import {
 interface PostCardProps {
     post: Post;
     onLike: (postId: string) => void;
-    onComment: (postId: string, content: string) => void; // Add this
+    onComment: (postId: string, content: string) => void;
     onDelete?: (postId: string) => void;
     currentUserId: string;
     showDelete?: boolean;

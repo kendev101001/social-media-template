@@ -16,7 +16,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 export default function HomeScreen() {
     const { user, token } = useAuth();
-    const { posts, setPosts, handleLike } = usePosts();
+    const { posts, setPosts, handleLike, handleComment } = usePosts();
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -75,6 +75,7 @@ export default function HomeScreen() {
                         <PostCard
                             post={item}
                             onLike={handleLike}
+                            onComment={handleComment}
                             currentUserId={user!.id}
                         />
                     )}
