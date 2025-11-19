@@ -1,7 +1,7 @@
 import PostCard from '@/components/PostCard';
 import { API_URL } from '@/config/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { Post } from '@/types/types';
+import { usePosts } from '@/hooks/usePosts';
 import { Feather, Ionicons, Octicons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,7 +9,6 @@ import { Href, router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import {
     Alert,
-    Dimensions,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -19,11 +18,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const { width } = Dimensions.get('window');
 
 export default function ProfileScreen() {
-    const { user, token, logout } = useAuth();
-    const [posts, setPosts] = useState<Post[]>([]);
+    const { user, token } = useAuth();
+    const { posts, setPosts, handleLike, handleComment } = usePosts();
     const [refreshing, setRefreshing] = useState(false);
     const [activeTab, setActiveTab] = useState('grid');
     const [stats, setStats] = useState({
@@ -69,32 +67,6 @@ export default function ProfileScreen() {
         setRefreshing(true);
         fetchProfile();
     }, []);
-
-    const handleLike = async (postId: string) => {
-        try {
-            const response = await fetch(`${API_URL}/posts/${postId}/like`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-
-            if (response.ok) {
-                setPosts(posts.map(post => {
-                    if (post.id === postId) {
-                        const isLiked = post.likes.includes(user!.id);
-                        return {
-                            ...post,
-                            likes: isLiked
-                                ? post.likes.filter(id => id !== user!.id)
-                                : [...post.likes, user!.id],
-                        };
-                    }
-                    return post;
-                }));
-            }
-        } catch (error) {
-            console.error('Like error:', error);
-        }
-    };
 
     const handleDeletePost = async (postId: string) => {
         Alert.alert('Delete Post', 'Are you sure you want to delete this post?', [
@@ -263,6 +235,7 @@ export default function ProfileScreen() {
                                 key={post.id}
                                 post={post}
                                 onLike={handleLike}
+                                onComment={handleComment}
                                 onDelete={handleDeletePost}
                                 currentUserId={user!.id}
                                 showDelete={true}

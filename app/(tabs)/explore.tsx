@@ -2,7 +2,8 @@ import PostCard from '@/components/PostCard';
 import UserCard from '@/components/UserCard';
 import { API_URL } from '@/config/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { Post, User } from '@/types/types';
+import { usePosts } from '@/hooks/usePosts';
+import { User } from '@/types/types';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
@@ -16,9 +17,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+
 export default function ExploreScreen() {
     const { user, token } = useAuth();
-    const [posts, setPosts] = useState<Post[]>([]);
+    const { posts, setPosts, handleLike } = usePosts();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -78,34 +80,6 @@ export default function ExploreScreen() {
         setSearchMode('posts');
         fetchExplore();
     }, []);
-
-    const handleLike = async (postId: string) => {
-        try {
-            const response = await fetch(`${API_URL}/posts/${postId}/like`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-
-            if (response.ok) {
-                setPosts(posts.map(post => {
-                    if (post.id === postId) {
-                        const isLiked = post.likes.includes(user!.id);
-                        return {
-                            ...post,
-                            likes: isLiked
-                                ? post.likes.filter(id => id !== user!.id)
-                                : [...post.likes, user!.id],
-                        };
-                    }
-                    return post;
-                }));
-            }
-        } catch (error) {
-            console.error('Like error:', error);
-        }
-    };
 
     const handleFollow = async (userId: string) => {
         try {

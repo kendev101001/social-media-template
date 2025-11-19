@@ -1,5 +1,5 @@
 import PostCard from '@/components/PostCard';
-import { Post } from '@/types/types';
+import { usePosts } from '@/hooks/usePosts';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
@@ -16,7 +16,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 export default function HomeScreen() {
     const { user, token } = useAuth();
-    const [posts, setPosts] = useState<Post[]>([]);
+    const { posts, setPosts, handleLike } = usePosts();
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -51,34 +51,6 @@ export default function HomeScreen() {
         setRefreshing(true);
         fetchFeed();
     }, []);
-
-    const handleLike = async (postId: string) => {
-        try {
-            const response = await fetch(`${API_URL}/posts/${postId}/like`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-
-            if (response.ok) {
-                setPosts(posts.map(post => {
-                    if (post.id === postId) {
-                        const isLiked = post.likes.includes(user!.id);
-                        return {
-                            ...post,
-                            likes: isLiked
-                                ? post.likes.filter(id => id !== user!.id)
-                                : [...post.likes, user!.id],
-                        };
-                    }
-                    return post;
-                }));
-            }
-        } catch (error) {
-            console.error('Like error:', error);
-        }
-    };
 
     if (loading) {
         return (

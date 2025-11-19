@@ -1,10 +1,7 @@
-import { API_URL } from '@/config/api';
-import { useAuth } from '@/contexts/AuthContext';
-import { Comment, Post } from '@/types/types';
+import { Post } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-    Alert,
     StyleSheet,
     Text,
     TextInput,
@@ -15,6 +12,7 @@ import {
 interface PostCardProps {
     post: Post;
     onLike: (postId: string) => void;
+    onComment: (postId: string, content: string) => void; // Add this
     onDelete?: (postId: string) => void;
     currentUserId: string;
     showDelete?: boolean;
@@ -23,15 +21,15 @@ interface PostCardProps {
 export default function PostCard({
     post,
     onLike,
+    onComment,
     onDelete,
     currentUserId,
     showDelete = false
 }: PostCardProps) {
-    const { token } = useAuth();
     const [showComments, setShowComments] = useState(false);
-    const [comments, setComments] = useState<Comment[]>(post.comments || []);
     const [newComment, setNewComment] = useState('');
     const [commenting, setCommenting] = useState(false);
+
 
     const isLiked = post.likes.includes(currentUserId);
     const isOwnPost = post.userId === currentUserId;
@@ -40,30 +38,14 @@ export default function PostCard({
         if (!newComment.trim()) return;
 
         setCommenting(true);
-        try {
-            const response = await fetch(`${API_URL}/posts/${post.id}/comment`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({ content: newComment }),
-            });
-
-            if (response.ok) {
-                const comment = await response.json();
-                setComments([...comments, comment]);
-                setNewComment('');
-            } else {
-                Alert.alert('Error', 'Failed to post comment');
-            }
-        } catch (error) {
-            console.error('Comment error:', error);
-            Alert.alert('Error', 'Network error');
-        } finally {
-            setCommenting(false);
-        }
+        await onComment(post.id, newComment);
+        setNewComment('');
+        setCommenting(false);
     };
+
+    const onBookmark = async () => {
+        return;
+    }
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -126,7 +108,18 @@ export default function PostCard({
                         size={24}
                         color="#666"
                     />
-                    <Text style={styles.actionText}>{comments.length}</Text>
+                    <Text style={styles.actionText}>{post.comments.length}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => onBookmark()}
+                >
+                    <Ionicons
+                        name="bookmark-outline"
+                        size={24}
+                        color="#666"
+                    />
+                    <Text style={styles.actionText}>{post.comments.length}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -151,7 +144,7 @@ export default function PostCard({
                         </TouchableOpacity>
                     </View>
 
-                    {comments.map((comment, index) => (
+                    {post.comments.map((comment, index) => (
                         <View key={index} style={styles.comment}>
                             <Text style={styles.commentUsername}>@{comment.username}</Text>
                             <Text style={styles.commentContent}>{comment.content}</Text>
