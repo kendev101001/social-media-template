@@ -1,6 +1,5 @@
 
-import { API_URL } from '@/config/api';
-import { useAuth } from '@/contexts/AuthContext';
+import { usePosts } from '@/contexts/PostsContext';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
@@ -16,8 +15,9 @@ import {
 } from 'react-native';
 
 export default function ModalScreen() {
-    const { token } = useAuth();
     const [newPostContent, setNewPostContent] = useState('');
+    const { createPost } = usePosts();
+    // Move posting to post context 
     const [posting, setPosting] = useState(false);
 
     const handleCreatePost = async () => {
@@ -25,24 +25,9 @@ export default function ModalScreen() {
             Alert.alert('Error', 'Post content cannot be empty');
             return;
         }
-
         setPosting(true);
         try {
-            const response = await fetch(`${API_URL}/posts`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({ content: newPostContent }),
-            });
-
-            if (response.ok) {
-                // Go back to profile - it will refetch due to useFocusEffect
-                router.back();
-            } else {
-                Alert.alert('Error', 'Failed to create post');
-            }
+            await createPost(newPostContent);
         } catch (error) {
             console.error('Post error:', error);
             Alert.alert('Error', 'Network error');
