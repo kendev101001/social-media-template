@@ -1,7 +1,7 @@
 import PostCard from '@/components/PostCard';
 import { API_URL } from '@/config/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePosts } from '@/hooks/usePosts';
+import { usePosts } from '@/contexts/PostsContext'; // ← Now from context
 import { Feather, Ionicons, Octicons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,86 +18,69 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-
 export default function ProfileScreen() {
-    const { user, token } = useAuth();
-    const { posts, setPosts, handleLike, handleComment } = usePosts();
-    const [refreshing, setRefreshing] = useState(false);
     const [activeTab, setActiveTab] = useState('grid');
+    const { user, token } = useAuth();
+    const {
+        userPosts,
+        fetchUserPosts,
+        deletePost,
+        toggleLike,
+        addComment,
+        loading,
+        refreshing
+    } = usePosts();
+
     const [stats, setStats] = useState({
         posts: 0,
         followers: 0,
         following: 0,
     });
 
-    const fetchProfile = async () => {
-        try {
-            const [postsRes, statsRes] = await Promise.all([
-                fetch(`${API_URL}/users/${user!.id}/posts`, {
-                    headers: { 'Authorization': `Bearer ${token}` },
-                }),
-                fetch(`${API_URL}/users/${user!.id}/stats`, {
-                    headers: { 'Authorization': `Bearer ${token}` },
-                }),
-            ]);
+    // Fetch both posts AND stats in parallel
+    const fetchProfileData = useCallback(async () => {
+        if (!user || !token) return;
 
-            if (postsRes.ok) {
-                const postsData = await postsRes.json();
-                setPosts(postsData);
-            }
+        try {
+            const [statsRes] = await Promise.all([
+                fetch(`${API_URL}/users/${user.id}/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                }),
+                fetchUserPosts(user.id), // This populates userPosts in context
+            ]);
 
             if (statsRes.ok) {
                 const statsData = await statsRes.json();
                 setStats(statsData);
             }
         } catch (error) {
-            console.error('Profile error:', error);
-        } finally {
-            setRefreshing(false);
+            console.error('Profile fetch error:', error);
         }
-    };
+    }, [user, token, fetchUserPosts]);
 
     useFocusEffect(
         useCallback(() => {
-            fetchProfile();
+            fetchProfileData();
         }, [])
     );
 
     const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        fetchProfile();
+        fetchProfileData();
     }, []);
 
     const handleDeletePost = async (postId: string) => {
-        Alert.alert('Delete Post', 'Are you sure you want to delete this post?', [
+        Alert.alert('Delete Post', 'Are you sure?', [
             { text: 'Cancel', style: 'cancel' },
             {
                 text: 'Delete',
                 style: 'destructive',
                 onPress: async () => {
                     try {
-                        const response = await fetch(`${API_URL}/posts/${postId}`, {
-                            method: 'DELETE',
-                            headers: { 'Authorization': `Bearer ${token}` },
-                        });
-
-                        if (response.ok) {
-                            setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
-                            setStats(prevStats => ({
-                                ...prevStats,
-                                posts: prevStats.posts - 1
-                            }));
-                        } else {
-                            const errorData = await response.json().catch(() => ({}));
-                            console.log('Error response:', errorData);
-                            Alert.alert(
-                                'Error',
-                                errorData.message || `Failed to delete post (${response.status})`
-                            );
-                        }
+                        await deletePost(postId);
+                        // Update stats optimistically
+                        setStats(prev => ({ ...prev, posts: prev.posts - 1 }));
                     } catch (error) {
-                        console.error('Delete error:', error);
-                        Alert.alert('Error', 'Failed to delete post. Please check your connection.');
+                        Alert.alert('Error', 'Failed to delete post');
                     }
                 },
             },
@@ -109,6 +92,9 @@ export default function ProfileScreen() {
         if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
         return num.toString();
     };
+
+    // Get current user's posts from the normalized map
+    const myPosts = user ? userPosts.get(user.id) || [] : [];
 
     return (
         <SafeAreaView style={styles.container}>
@@ -222,7 +208,7 @@ export default function ProfileScreen() {
                 </View>
 
                 <View style={styles.postsSection}>
-                    {posts.length === 0 ? (
+                    {myPosts.length === 0 ? (
                         <View style={styles.emptyContainer}>
                             <Text style={styles.emptyText}>No posts yet</Text>
                             <Text style={styles.emptySubtext}>
@@ -230,12 +216,12 @@ export default function ProfileScreen() {
                             </Text>
                         </View>
                     ) : (
-                        posts.map((post) => (
+                        myPosts.map((post) => (
                             <PostCard
                                 key={post.id}
                                 post={post}
-                                onLike={handleLike}
-                                onComment={handleComment}
+                                onLike={toggleLike}
+                                onComment={addComment}
                                 onDelete={handleDeletePost}
                                 currentUserId={user!.id}
                                 showDelete={true}

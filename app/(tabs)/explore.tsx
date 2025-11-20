@@ -2,7 +2,7 @@ import PostCard from '@/components/PostCard';
 import UserCard from '@/components/UserCard';
 import { API_URL } from '@/config/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePosts } from '@/hooks/usePosts';
+import { usePosts } from '@/contexts/PostsContext';
 import { User } from '@/types/types';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -20,32 +20,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ExploreScreen() {
     const { user, token } = useAuth();
-    const { posts, setPosts, handleLike, handleComment } = usePosts();
+    const {
+        explorePosts,
+        toggleLike,
+        addComment,
+        fetchExplore
+    } = usePosts();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchMode, setSearchMode] = useState<'posts' | 'users'>('posts');
-
-    const fetchExplore = async () => {
-        try {
-            const response = await fetch(`${API_URL}/posts/explore`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setPosts(data);
-            }
-        } catch (error) {
-            console.error('Explore error:', error);
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
-    };
 
     const searchUsers = async () => {
         if (!searchQuery.trim()) return;
@@ -155,13 +140,13 @@ export default function ExploreScreen() {
                 />
             ) : (
                 <FlatList
-                    data={posts}
+                    data={explorePosts}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                         <PostCard
                             post={item}
-                            onLike={handleLike}
-                            onComment={handleComment}
+                            onLike={toggleLike}
+                            onComment={addComment}
                             currentUserId={user!.id}
                         />
                     )}
