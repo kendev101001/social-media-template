@@ -27,7 +27,6 @@ export default function ProfileScreen() {
         deletePost,
         toggleLike,
         addComment,
-        loading,
         refreshing
     } = usePosts();
 
