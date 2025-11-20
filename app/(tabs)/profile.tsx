@@ -60,12 +60,12 @@ export default function ProfileScreen() {
     useFocusEffect(
         useCallback(() => {
             fetchProfileData();
-        }, [])
+        }, [fetchProfileData])
     );
 
     const onRefresh = useCallback(() => {
         fetchProfileData();
-    }, []);
+    }, [fetchProfileData]);
 
     const handleDeletePost = async (postId: string) => {
         Alert.alert('Delete Post', 'Are you sure?', [
