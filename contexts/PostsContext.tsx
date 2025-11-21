@@ -62,7 +62,7 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const fetchFeed = useCallback(async () => {
-        if (!token) return;
+        if (!token || !user) return;
 
         setRefreshing(true);
         try {

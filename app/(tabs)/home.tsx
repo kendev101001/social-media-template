@@ -31,7 +31,7 @@ export default function HomeScreen() {
         fetchFeed();
     }, []);
 
-    if (loading) {
+    if (loading || !user) {
         return (
             <View style={styles.centerContainer}>
                 <ActivityIndicator size="large" color="#007AFF" />
@@ -55,7 +55,7 @@ export default function HomeScreen() {
                             post={item}
                             onLike={toggleLike}
                             onComment={addComment}
-                            currentUserId={user!.id}
+                            currentUserId={user.id}
                         />
                     )}
                     refreshControl={
