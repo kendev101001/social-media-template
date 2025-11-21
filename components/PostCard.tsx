@@ -1,7 +1,9 @@
+import { API_URL } from '@/config/api';
 import { Post } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
+    Image,
     StyleSheet,
     Text,
     TextInput,
@@ -29,7 +31,6 @@ export default function PostCard({
     const [showComments, setShowComments] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [commenting, setCommenting] = useState(false);
-
 
     const isLiked = post.likes.includes(currentUserId);
     const isOwnPost = post.userId === currentUserId;
@@ -85,6 +86,15 @@ export default function PostCard({
             </View>
 
             <Text style={styles.content}>{post.content}</Text>
+
+            {/* Image Display */}
+            {post.imageUrl && (
+                <Image
+                    source={{ uri: `${API_URL}${post.imageUrl}` }}
+                    style={styles.postImage}
+                    resizeMode="cover"
+                />
+            )}
 
             <View style={styles.actions}>
                 <TouchableOpacity
@@ -208,6 +218,13 @@ const styles = StyleSheet.create({
         lineHeight: 20,
         color: '#333',
         marginBottom: 10,
+    },
+    postImage: {
+        width: '100%',
+        height: 300,
+        borderRadius: 8,
+        marginBottom: 10,
+        backgroundColor: '#f0f0f0',
     },
     actions: {
         flexDirection: 'row',
