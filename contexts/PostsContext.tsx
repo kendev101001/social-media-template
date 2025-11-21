@@ -262,6 +262,8 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
 
             if (response.ok) {
                 const newPost = await response.json();
+                console.log('Server returned post:', newPost);
+                console.log('Image URL from server:', newPost.imageUrl); 
 
                 // Add to master storage
                 setPosts(prev => {
