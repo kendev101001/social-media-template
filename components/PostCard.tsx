@@ -1,4 +1,4 @@
-import { API_URL, BASE_URL } from '@/config/api';
+import { BASE_URL } from '@/config/api';
 import { Post } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -28,13 +28,11 @@ export default function PostCard({
     currentUserId,
     showDelete = false
 }: PostCardProps) {
-
-    // Add this at the very top
-    if (post.imageUrl) {
-        console.log('🖼️ Post has imageUrl:', post.imageUrl);
-        console.log('🌐 API_URL is:', API_URL);
-        console.log('🔗 Full image URL:', `${API_URL}${post.imageUrl}`);
-    }
+    // if (post.imageUrl) {
+    //     console.log('Post has imageUrl:', post.imageUrl);
+    //     console.log('API_URL is:', API_URL);
+    //     console.log('Full image URL:', `${API_URL}${post.imageUrl}`);
+    // }
 
     const [showComments, setShowComments] = useState(false);
     const [newComment, setNewComment] = useState('');
