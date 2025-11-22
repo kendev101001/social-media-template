@@ -1,6 +1,5 @@
-import ImageViewer from '@/components/ImageViewer';
+
 import { usePosts } from '@/contexts/PostsContext';
-import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
