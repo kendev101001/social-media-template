@@ -8,6 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
     Alert,
+    Image,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -24,8 +25,17 @@ export default function ModalScreen() {
     const { createPost } = usePosts();
     const [posting, setPosting] = useState(false);
 
-    const pickImageAsync = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
+    const pickImage = async () => {
+        // Request permission
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            Alert.alert('Permission Required', 'Permission to access camera roll is required!');
+            return;
+        }
+
+        // Launch image picker
+        const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: true,
             quality: 1,
@@ -33,8 +43,6 @@ export default function ModalScreen() {
 
         if (!result.canceled) {
             setSelectedImage(result.assets[0].uri);
-        } else {
-            Alert.alert('No image selected', 'You did not select any image.');
         }
     };
 
@@ -43,8 +51,8 @@ export default function ModalScreen() {
     };
 
     const handleCreatePost = async () => {
-        if (!newPostContent.trim()) {
-            Alert.alert('Error', 'Post content cannot be empty');
+        if (!newPostContent.trim() && !selectedImage) {
+            Alert.alert('Error', 'Post must have content or an image');
             return;
         }
 
@@ -75,30 +83,18 @@ export default function ModalScreen() {
                     <Text style={styles.title}>Create New Post</Text>
                     <TouchableOpacity
                         onPress={handleCreatePost}
-                        disabled={posting || !newPostContent.trim()}
+                        disabled={posting || (!newPostContent.trim() && !selectedImage)}
                     >
                         <Text style={[
                             styles.postButton,
-                            (posting || !newPostContent.trim()) && styles.postButtonDisabled
+                            (posting || (!newPostContent.trim() && !selectedImage)) && styles.postButtonDisabled
                         ]}>
                             {posting ? 'Posting...' : 'Post'}
                         </Text>
                     </TouchableOpacity>
                 </View>
 
-                <ScrollView style={styles.scrollContent}>
-                    {selectedImage && (
-                        <View style={styles.imageContainer}>
-                            <ImageViewer selectedImage={selectedImage} />
-                            <TouchableOpacity
-                                style={styles.removeImageButton}
-                                onPress={removeImage}
-                            >
-                                <Ionicons name="close-circle" size={32} color="#ff0000" />
-                            </TouchableOpacity>
-                        </View>
-                    )}
-
+                <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
                     <TextInput
                         style={styles.postInput}
                         placeholder="What's on your mind?"
@@ -109,16 +105,34 @@ export default function ModalScreen() {
                         editable={!posting}
                         autoFocus
                     />
+
+                    {selectedImage && (
+                        <View style={styles.imagePreviewContainer}>
+                            <Image
+                                source={{ uri: selectedImage }}
+                                style={styles.imagePreview}
+                                resizeMode="cover"
+                            />
+                            <TouchableOpacity
+                                style={styles.removeImageButton}
+                                onPress={removeImage}
+                            >
+                                <Ionicons name="close-circle" size={30} color="#fff" />
+                            </TouchableOpacity>
+                        </View>
+                    )}
                 </ScrollView>
 
                 <View style={styles.footer}>
                     <TouchableOpacity
-                        style={styles.addImageButton}
-                        onPress={pickImageAsync}
+                        style={styles.imagePickerButton}
+                        onPress={pickImage}
                         disabled={posting}
                     >
-                        <AntDesign name="picture" size={24} color="#007AFF" />
-                        <Text style={styles.addImageText}>Add Photo</Text>
+                        <Ionicons name="image-outline" size={24} color="#007AFF" />
+                        <Text style={styles.imagePickerText}>
+                            {selectedImage ? 'Change Image' : 'Add Image'}
+                        </Text>
                     </TouchableOpacity>
 
                     <Text style={styles.charCount}>
@@ -167,42 +181,48 @@ const styles = StyleSheet.create({
     scrollContent: {
         flex: 1,
     },
-    imageContainer: {
-        position: 'relative',
+    postInput: {
+        fontSize: 16,
+        minHeight: 100,
+        textAlignVertical: 'top',
+        paddingTop: 10,
+    },
+    imagePreviewContainer: {
+        marginTop: 15,
         marginBottom: 15,
         borderRadius: 12,
         overflow: 'hidden',
+        backgroundColor: '#f0f0f0',
+    },
+    imagePreview: {
+        width: '100%',
+        height: 300,
+        borderRadius: 12,
     },
     removeImageButton: {
         position: 'absolute',
         top: 10,
         right: 10,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        borderRadius: 16,
-    },
-    postInput: {
-        fontSize: 16,
-        minHeight: 150,
-        textAlignVertical: 'top',
-        paddingTop: 10,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        borderRadius: 15,
     },
     footer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingTop: 15,
         borderTopWidth: 1,
-        borderTopColor: '#eee',
+        borderTopColor: '#e0e0e0',
+        paddingTop: 15,
+        marginTop: 10,
     },
-    addImageButton: {
+    imagePickerButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 10,
+        paddingVertical: 10,
+        marginBottom: 10,
     },
-    addImageText: {
-        marginLeft: 8,
+    imagePickerText: {
+        marginLeft: 10,
         fontSize: 16,
         color: '#007AFF',
+        fontWeight: '500',
     },
     charCount: {
         color: '#666',
