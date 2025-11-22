@@ -1,7 +1,10 @@
+import { API_URL } from '@/config/api';
 import { Post } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
+    Dimensions,
+    Image,
     StyleSheet,
     Text,
     TextInput,
@@ -18,6 +21,24 @@ interface PostCardProps {
     showDelete?: boolean;
 }
 
+// Get screen width for image sizing
+const screenWidth = Dimensions.get('window').width;
+const imageWidth = screenWidth - 40; // Account for margins
+
+// Helper to get full image URL
+const getImageUrl = (imageUrl: string | undefined | null): string | null => {
+    if (!imageUrl) return null;
+
+    // If it's already a full URL, return as-is
+    if (imageUrl.startsWith('http')) {
+        return imageUrl;
+    }
+
+    // Otherwise, prepend the API base URL (without /api)
+    const baseUrl = API_URL.replace('/api', '');
+    return `${baseUrl}${imageUrl}`;
+};
+
 export default function PostCard({
     post,
     onLike,
@@ -29,10 +50,11 @@ export default function PostCard({
     const [showComments, setShowComments] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [commenting, setCommenting] = useState(false);
-
+    const [imageError, setImageError] = useState(false);
 
     const isLiked = post.likes.includes(currentUserId);
     const isOwnPost = post.userId === currentUserId;
+    const imageUrl = getImageUrl(post.imageUrl);
 
     const handleComment = async () => {
         if (!newComment.trim()) return;
@@ -45,7 +67,7 @@ export default function PostCard({
 
     const onBookmark = async () => {
         return;
-    }
+    };
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -84,7 +106,30 @@ export default function PostCard({
                 )}
             </View>
 
-            <Text style={styles.content}>{post.content}</Text>
+            {/* Post content */}
+            {post.content ? (
+                <Text style={styles.content}>{post.content}</Text>
+            ) : null}
+
+            {/* Post image - NEW */}
+            {imageUrl && !imageError && (
+                <View style={styles.imageContainer}>
+                    <Image
+                        source={{ uri: imageUrl }}
+                        style={styles.postImage}
+                        resizeMode="cover"
+                        onError={() => setImageError(true)}
+                    />
+                </View>
+            )}
+
+            {/* Image load error fallback */}
+            {imageUrl && imageError && (
+                <View style={styles.imageErrorContainer}>
+                    <Ionicons name="image-outline" size={40} color="#ccc" />
+                    <Text style={styles.imageErrorText}>Failed to load image</Text>
+                </View>
+            )}
 
             <View style={styles.actions}>
                 <TouchableOpacity
@@ -110,6 +155,7 @@ export default function PostCard({
                     />
                     <Text style={styles.actionText}>{post.comments.length}</Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
                     style={styles.actionButton}
                     onPress={() => onBookmark()}
@@ -119,7 +165,6 @@ export default function PostCard({
                         size={24}
                         color="#666"
                     />
-                    <Text style={styles.actionText}>{post.comments.length}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -208,6 +253,31 @@ const styles = StyleSheet.create({
         lineHeight: 20,
         color: '#333',
         marginBottom: 10,
+    },
+    // NEW: Image styles
+    imageContainer: {
+        marginVertical: 10,
+        borderRadius: 12,
+        overflow: 'hidden',
+        backgroundColor: '#f0f0f0',
+    },
+    postImage: {
+        width: '100%',
+        height: 300,
+        borderRadius: 12,
+    },
+    imageErrorContainer: {
+        height: 200,
+        backgroundColor: '#f5f5f5',
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    imageErrorText: {
+        color: '#999',
+        marginTop: 10,
+        fontSize: 14,
     },
     actions: {
         flexDirection: 'row',

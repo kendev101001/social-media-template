@@ -4,10 +4,10 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 import { useAuth } from './AuthContext';
 
 interface PostsContextType {
-    posts: Map<string, Post>; // Single source of truth, every post exists once in memory, no duplicates
-    feedPosts: Post[];        // Just an ordered list of IDs for the feed
-    explorePosts: Post[];     // Same as for feed
-    userPosts: Map<string, Post[]>; // Each user has their own ordered list of post IDs
+    posts: Map<string, Post>;
+    feedPosts: Post[];
+    explorePosts: Post[];
+    userPosts: Map<string, Post[]>;
 
     fetchFeed: () => Promise<void>;
     fetchExplore: () => Promise<void>;
@@ -16,7 +16,7 @@ interface PostsContextType {
     toggleLike: (postId: string) => Promise<void>;
     addComment: (postId: string, content: string) => Promise<void>;
     deletePost: (postId: string) => Promise<void>;
-    createPost: (content: string) => Promise<void>;
+    createPost: (content: string, imageUri?: string | null) => Promise<void>;  // UPDATED
 
     loading: boolean;
     refreshing: boolean;
@@ -27,10 +27,7 @@ const PostsContext = createContext<PostsContextType | undefined>(undefined);
 export function PostsProvider({ children }: { children: React.ReactNode }) {
     const { token, user } = useAuth();
 
-    // Master posts storage - single source of truth
     const [posts, setPosts] = useState<Map<string, Post>>(new Map());
-
-    // View-specific post IDs
     const [feedPostIds, setFeedPostIds] = useState<string[]>([]);
     const [explorePostIds, setExplorePostIds] = useState<string[]>([]);
     const [userPostsMap, setUserPostsMap] = useState<Map<string, string[]>>(new Map());
@@ -38,7 +35,6 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
 
-    // Helper to update a post in the master storage
     const updatePost = useCallback((postId: string, updater: (post: Post) => Post) => {
         setPosts(prev => {
             const newPosts = new Map(prev);
@@ -50,7 +46,6 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
         });
     }, []);
 
-    // Helper to add posts to master storage
     const addPosts = useCallback((newPosts: Post[]) => {
         setPosts(prev => {
             const updated = new Map(prev);
@@ -131,7 +126,6 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
     const toggleLike = useCallback(async (postId: string) => {
         if (!token || !user) return;
 
-        // Optimistic update
         const post = posts.get(postId);
         if (!post) return;
 
@@ -151,7 +145,6 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
             });
 
             if (!response.ok) {
-                // Revert on failure
                 updatePost(postId, (p) => ({
                     ...p,
                     likes: isLiked
@@ -161,7 +154,6 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
             }
         } catch (error) {
             console.error('Like error:', error);
-            // Revert on error
             updatePost(postId, (p) => ({
                 ...p,
                 likes: isLiked
@@ -207,14 +199,12 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
             });
 
             if (response.ok) {
-                // Remove from master storage
                 setPosts(prev => {
                     const updated = new Map(prev);
                     updated.delete(postId);
                     return updated;
                 });
 
-                // Remove from all view lists
                 setFeedPostIds(prev => prev.filter(id => id !== postId));
                 setExplorePostIds(prev => prev.filter(id => id !== postId));
                 setUserPostsMap(prev => {
@@ -231,39 +221,61 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
         }
     }, [token]);
 
-    const createPost = useCallback(async (content: string) => {
+    // UPDATED: createPost now handles image upload
+    const createPost = useCallback(async (content: string, imageUri?: string | null) => {
         if (!token || !user) return;
 
         try {
+            // Use FormData for multipart upload
+            const formData = new FormData();
+
+            // Add content
+            formData.append('content', content);
+
+            // Add image if provided
+            if (imageUri) {
+                // Extract filename and determine type
+                const filename = imageUri.split('/').pop() || 'image.jpg';
+                const match = /\.(\w+)$/.exec(filename);
+                const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+                // Append the image file
+                formData.append('image', {
+                    uri: imageUri,
+                    name: filename,
+                    type,
+                } as any);
+            }
+
             const response = await fetch(`${API_URL}/posts`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
+                    // Don't set Content-Type - fetch will set it automatically with boundary for FormData
                 },
-                body: JSON.stringify({ content }),
+                body: formData,
             });
 
             if (response.ok) {
                 const newPost = await response.json();
 
-                // Add to master storage
                 setPosts(prev => {
                     const updated = new Map(prev);
                     updated.set(newPost.id, newPost);
                     return updated;
                 });
 
-                // Add to feed (assuming new posts appear in feed)
                 setFeedPostIds(prev => [newPost.id, ...prev]);
 
-                // Add to user's posts if viewing own profile
                 setUserPostsMap(prev => {
                     const updated = new Map(prev);
                     const userPosts = updated.get(user.id) || [];
                     updated.set(user.id, [newPost.id, ...userPosts]);
                     return updated;
                 });
+            } else {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to create post');
             }
         } catch (error) {
             console.error('Create post error:', error);
@@ -271,13 +283,13 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
         }
     }, [token, user]);
 
-    // Computed values - derive arrays from master storage
-    // Why use memoised selectors??
     const feedPosts = useMemo(() =>
         feedPostIds.map(id => posts.get(id)).filter(Boolean) as Post[],
         [feedPostIds, posts]
     );
+
     const explorePosts = explorePostIds.map(id => posts.get(id)).filter(Boolean) as Post[];
+
     const userPosts = new Map<string, Post[]>();
     userPostsMap.forEach((ids, userId) => {
         userPosts.set(userId, ids.map(id => posts.get(id)).filter(Boolean) as Post[]);

@@ -1,3 +1,4 @@
+
 export interface User {
     id: string;
     email: string;
@@ -12,6 +13,7 @@ export interface Post {
     userId: string;
     username: string;
     content: string;
+    imageUrl?: string;
     likes: string[];
     comments: Comment[];
     createdAt: string;

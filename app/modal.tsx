@@ -1,4 +1,3 @@
-
 import { usePosts } from '@/contexts/PostsContext';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -25,7 +24,6 @@ export default function ModalScreen() {
     const [posting, setPosting] = useState(false);
 
     const pickImage = async () => {
-        // Request permission
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if (permissionResult.granted === false) {
@@ -33,7 +31,6 @@ export default function ModalScreen() {
             return;
         }
 
-        // Launch image picker
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
@@ -57,13 +54,16 @@ export default function ModalScreen() {
         }
         setPosting(true);
         try {
-            // For now, just pass the content. Later you'll pass selectedImage too
-            await createPost(newPostContent);
-            // TODO: Update createPost to handle image upload
-            // await createPost(newPostContent, selectedImage);
+            // UPDATED: Pass both content and image to createPost
+            await createPost(newPostContent, selectedImage);
+
+            // Clear form and navigate back on success
+            setNewPostContent('');
+            setSelectedImage(null);
+            router.back();
         } catch (error) {
             console.error('Post error:', error);
-            Alert.alert('Error', 'Network error');
+            Alert.alert('Error', error instanceof Error ? error.message : 'Failed to create post');
         } finally {
             setPosting(false);
         }
@@ -115,6 +115,7 @@ export default function ModalScreen() {
                             <TouchableOpacity
                                 style={styles.removeImageButton}
                                 onPress={removeImage}
+                                disabled={posting}
                             >
                                 <Ionicons name="close-circle" size={30} color="#fff" />
                             </TouchableOpacity>
@@ -128,8 +129,15 @@ export default function ModalScreen() {
                         onPress={pickImage}
                         disabled={posting}
                     >
-                        <Ionicons name="image-outline" size={24} color="#007AFF" />
-                        <Text style={styles.imagePickerText}>
+                        <Ionicons
+                            name="image-outline"
+                            size={24}
+                            color={posting ? '#ccc' : '#007AFF'}
+                        />
+                        <Text style={[
+                            styles.imagePickerText,
+                            posting && styles.textDisabled
+                        ]}>
                             {selectedImage ? 'Change Image' : 'Add Image'}
                         </Text>
                     </TouchableOpacity>
@@ -222,6 +230,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#007AFF',
         fontWeight: '500',
+    },
+    textDisabled: {
+        color: '#ccc',
     },
     charCount: {
         textAlign: 'right',
