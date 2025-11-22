@@ -1,12 +1,16 @@
 
 import { usePosts } from '@/contexts/PostsContext';
+import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
     Alert,
+    Image,
     KeyboardAvoidingView,
     Platform,
+    ScrollView,
     StyleSheet,
     Text,
     TextInput,
@@ -16,18 +20,47 @@ import {
 
 export default function ModalScreen() {
     const [newPostContent, setNewPostContent] = useState('');
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const { createPost } = usePosts();
-    // Move posting to post context 
     const [posting, setPosting] = useState(false);
 
+    const pickImage = async () => {
+        // Request permission
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            Alert.alert('Permission Required', 'Permission to access camera roll is required!');
+            return;
+        }
+
+        // Launch image picker
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+        });
+
+        if (!result.canceled) {
+            setSelectedImage(result.assets[0].uri);
+        }
+    };
+
+    const removeImage = () => {
+        setSelectedImage(null);
+    };
+
     const handleCreatePost = async () => {
-        if (!newPostContent.trim()) {
-            Alert.alert('Error', 'Post content cannot be empty');
+        if (!newPostContent.trim() && !selectedImage) {
+            Alert.alert('Error', 'Post must have content or an image');
             return;
         }
         setPosting(true);
         try {
+            // For now, just pass the content. Later you'll pass selectedImage too
             await createPost(newPostContent);
+            // TODO: Update createPost to handle image upload
+            // await createPost(newPostContent, selectedImage);
         } catch (error) {
             console.error('Post error:', error);
             Alert.alert('Error', 'Network error');
@@ -49,31 +82,62 @@ export default function ModalScreen() {
                     <Text style={styles.title}>Create New Post</Text>
                     <TouchableOpacity
                         onPress={handleCreatePost}
-                        disabled={posting || !newPostContent.trim()}
+                        disabled={posting || (!newPostContent.trim() && !selectedImage)}
                     >
                         <Text style={[
                             styles.postButton,
-                            (posting || !newPostContent.trim()) && styles.postButtonDisabled
+                            (posting || (!newPostContent.trim() && !selectedImage)) && styles.postButtonDisabled
                         ]}>
                             {posting ? 'Posting...' : 'Post'}
                         </Text>
                     </TouchableOpacity>
                 </View>
 
-                <TextInput
-                    style={styles.postInput}
-                    placeholder="What's on your mind?"
-                    multiline
-                    value={newPostContent}
-                    onChangeText={setNewPostContent}
-                    maxLength={500}
-                    editable={!posting}
-                    autoFocus
-                />
+                <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                    <TextInput
+                        style={styles.postInput}
+                        placeholder="What's on your mind?"
+                        multiline
+                        value={newPostContent}
+                        onChangeText={setNewPostContent}
+                        maxLength={500}
+                        editable={!posting}
+                        autoFocus
+                    />
 
-                <Text style={styles.charCount}>
-                    {newPostContent.length}/500
-                </Text>
+                    {selectedImage && (
+                        <View style={styles.imagePreviewContainer}>
+                            <Image
+                                source={{ uri: selectedImage }}
+                                style={styles.imagePreview}
+                                resizeMode="cover"
+                            />
+                            <TouchableOpacity
+                                style={styles.removeImageButton}
+                                onPress={removeImage}
+                            >
+                                <Ionicons name="close-circle" size={30} color="#fff" />
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </ScrollView>
+
+                <View style={styles.footer}>
+                    <TouchableOpacity
+                        style={styles.imagePickerButton}
+                        onPress={pickImage}
+                        disabled={posting}
+                    >
+                        <Ionicons name="image-outline" size={24} color="#007AFF" />
+                        <Text style={styles.imagePickerText}>
+                            {selectedImage ? 'Change Image' : 'Add Image'}
+                        </Text>
+                    </TouchableOpacity>
+
+                    <Text style={styles.charCount}>
+                        {newPostContent.length}/500
+                    </Text>
+                </View>
             </View>
 
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
@@ -113,16 +177,55 @@ const styles = StyleSheet.create({
     postButtonDisabled: {
         color: '#ccc',
     },
-    postInput: {
+    scrollContent: {
         flex: 1,
+    },
+    postInput: {
         fontSize: 16,
+        minHeight: 100,
         textAlignVertical: 'top',
         paddingTop: 10,
+    },
+    imagePreviewContainer: {
+        marginTop: 15,
+        marginBottom: 15,
+        borderRadius: 12,
+        overflow: 'hidden',
+        backgroundColor: '#f0f0f0',
+    },
+    imagePreview: {
+        width: '100%',
+        height: 300,
+        borderRadius: 12,
+    },
+    removeImageButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        borderRadius: 15,
+    },
+    footer: {
+        borderTopWidth: 1,
+        borderTopColor: '#e0e0e0',
+        paddingTop: 15,
+        marginTop: 10,
+    },
+    imagePickerButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        marginBottom: 10,
+    },
+    imagePickerText: {
+        marginLeft: 10,
+        fontSize: 16,
+        color: '#007AFF',
+        fontWeight: '500',
     },
     charCount: {
         textAlign: 'right',
         color: '#666',
-        marginTop: 10,
         fontSize: 12,
     },
 });
