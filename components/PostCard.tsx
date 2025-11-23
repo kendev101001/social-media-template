@@ -3,7 +3,6 @@ import { Post } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-    // Dimensions,
     Image,
     StyleSheet,
     Text,
@@ -20,10 +19,6 @@ interface PostCardProps {
     currentUserId: string;
     showDelete?: boolean;
 }
-
-// Get screen width for image sizing
-// const screenWidth = Dimensions.get('window').width;
-// const imageWidth = screenWidth - 40; // Account for margins
 
 // Helper to get full image URL
 const getImageUrl = (imageUrl: string | undefined | null): string | null => {
