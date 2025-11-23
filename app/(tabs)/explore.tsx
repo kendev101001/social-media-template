@@ -21,20 +21,21 @@ export default function ExploreScreen() {
     const { user, token } = useAuth();
     const {
         explorePosts,
+        loading: contextLoading,
+        refreshing: contextRefreshing,
         toggleLike,
         addComment,
         fetchExplore
     } = usePosts();
     const [users, setUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
+    const [searchLoading, setSearchLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchMode, setSearchMode] = useState<'posts' | 'users'>('posts');
 
     const searchUsers = async () => {
         if (!searchQuery.trim()) return;
 
-        setLoading(true);
+        setSearchLoading(true);
         try {
             const response = await fetch(`${API_URL}/users/search?q=${searchQuery}`, {
                 headers: {
@@ -50,7 +51,7 @@ export default function ExploreScreen() {
         } catch (error) {
             console.error('Search error:', error);
         } finally {
-            setLoading(false);
+            setSearchLoading(false);
         }
     };
 
@@ -59,7 +60,6 @@ export default function ExploreScreen() {
     }, []);
 
     const onRefresh = useCallback(() => {
-        setRefreshing(true);
         setSearchQuery('');
         setSearchMode('posts');
         fetchExplore();
@@ -93,7 +93,18 @@ export default function ExploreScreen() {
         }
     };
 
-    if (loading && !refreshing) {
+    const isLoading = searchMode === 'users' ? searchLoading : contextLoading;
+    const isRefreshing = searchMode === 'posts' ? contextRefreshing : false;
+
+    if (isLoading && !isRefreshing) {
+        return (
+            <View style={styles.centerContainer}>
+                <ActivityIndicator size="large" color="#007AFF" />
+            </View>
+        );
+    }
+
+    if (!user) {
         return (
             <View style={styles.centerContainer}>
                 <ActivityIndicator size="large" color="#007AFF" />
@@ -124,11 +135,11 @@ export default function ExploreScreen() {
                         <UserCard
                             user={item}
                             onFollow={handleFollow}
-                            currentUserId={user!.id}
+                            currentUserId={user.id}
                         />
                     )}
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        <RefreshControl refreshing={false} onRefresh={onRefresh} />
                     }
                     contentContainerStyle={styles.listContainer}
                     ListEmptyComponent={
@@ -146,11 +157,11 @@ export default function ExploreScreen() {
                             post={item}
                             onLike={toggleLike}
                             onComment={addComment}
-                            currentUserId={user!.id}
+                            currentUserId={user.id}
                         />
                     )}
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        <RefreshControl refreshing={contextRefreshing} onRefresh={onRefresh} />
                     }
                     contentContainerStyle={styles.listContainer}
                     ListEmptyComponent={
