@@ -16,7 +16,7 @@ interface PostsContextType {
     toggleLike: (postId: string) => Promise<void>;
     addComment: (postId: string, content: string) => Promise<void>;
     deletePost: (postId: string) => Promise<void>;
-    createPost: (content: string, imageUri?: string | null) => Promise<void>;  // UPDATED
+    createPost: (content: string, imageUri?: string | null) => Promise<void>; 
 
     loading: boolean;
     refreshing: boolean;
@@ -258,6 +258,8 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
 
             if (response.ok) {
                 const newPost = await response.json();
+                console.log('Server returned post:', newPost);
+                console.log('Image URL from server:', newPost.imageUrl); 
 
                 setPosts(prev => {
                     const updated = new Map(prev);
@@ -283,17 +285,24 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
         }
     }, [token, user]);
 
+    // Computed values - derive arrays from master storage
     const feedPosts = useMemo(() =>
         feedPostIds.map(id => posts.get(id)).filter(Boolean) as Post[],
         [feedPostIds, posts]
     );
+// Need to fully understand what useMemo does
+    const explorePosts = useMemo(() =>
+        explorePostIds.map(id => posts.get(id)).filter(Boolean) as Post[],
+        [explorePostIds, posts]
+    );
 
-    const explorePosts = explorePostIds.map(id => posts.get(id)).filter(Boolean) as Post[];
-
-    const userPosts = new Map<string, Post[]>();
-    userPostsMap.forEach((ids, userId) => {
-        userPosts.set(userId, ids.map(id => posts.get(id)).filter(Boolean) as Post[]);
-    });
+    const userPosts = useMemo(() => {
+        const result = new Map<string, Post[]>();
+        userPostsMap.forEach((ids, userId) => {
+            result.set(userId, ids.map(id => posts.get(id)).filter(Boolean) as Post[]);
+        });
+        return result;
+    }, [userPostsMap, posts]);
 
     return (
         <PostsContext.Provider value={{

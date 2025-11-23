@@ -1,5 +1,5 @@
 import { usePosts } from '@/contexts/PostsContext';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -19,7 +19,7 @@ import {
 
 export default function ModalScreen() {
     const [newPostContent, setNewPostContent] = useState('');
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
     const { createPost } = usePosts();
     const [posting, setPosting] = useState(false);
 
@@ -32,10 +32,9 @@ export default function ModalScreen() {
         }
 
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ['images'],
             allowsEditing: true,
-            aspect: [4, 3],
-            quality: 0.8,
+            quality: 1,
         });
 
         if (!result.canceled) {
@@ -44,7 +43,7 @@ export default function ModalScreen() {
     };
 
     const removeImage = () => {
-        setSelectedImage(null);
+        setSelectedImage(undefined);
     };
 
     const handleCreatePost = async () => {
@@ -52,14 +51,12 @@ export default function ModalScreen() {
             Alert.alert('Error', 'Post must have content or an image');
             return;
         }
+
         setPosting(true);
         try {
-            // UPDATED: Pass both content and image to createPost
             await createPost(newPostContent, selectedImage);
-
-            // Clear form and navigate back on success
             setNewPostContent('');
-            setSelectedImage(null);
+            setSelectedImage(undefined);
             router.back();
         } catch (error) {
             console.error('Post error:', error);
@@ -235,7 +232,6 @@ const styles = StyleSheet.create({
         color: '#ccc',
     },
     charCount: {
-        textAlign: 'right',
         color: '#666',
         fontSize: 12,
     },

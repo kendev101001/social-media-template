@@ -3,7 +3,7 @@ import { Post } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-    Dimensions,
+    // Dimensions,
     Image,
     StyleSheet,
     Text,
@@ -22,8 +22,8 @@ interface PostCardProps {
 }
 
 // Get screen width for image sizing
-const screenWidth = Dimensions.get('window').width;
-const imageWidth = screenWidth - 40; // Account for margins
+// const screenWidth = Dimensions.get('window').width;
+// const imageWidth = screenWidth - 40; // Account for margins
 
 // Helper to get full image URL
 const getImageUrl = (imageUrl: string | undefined | null): string | null => {
@@ -47,6 +47,12 @@ export default function PostCard({
     currentUserId,
     showDelete = false
 }: PostCardProps) {
+    // if (post.imageUrl) {
+    //     console.log('Post has imageUrl:', post.imageUrl);
+    //     console.log('API_URL is:', API_URL);
+    //     console.log('Full image URL:', `${API_URL}${post.imageUrl}`);
+    // }
+
     const [showComments, setShowComments] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [commenting, setCommenting] = useState(false);

@@ -4,6 +4,8 @@
 // For production, use your actual server URL
 
 export const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
+export const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL || 'http://localhost:3000';
+
 
 // To find your local IP address:
 // - On Mac: Run 'ifconfig' in terminal and look for 'inet' under en0
