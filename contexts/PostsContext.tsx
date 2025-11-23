@@ -16,7 +16,7 @@ interface PostsContextType {
     toggleLike: (postId: string) => Promise<void>;
     addComment: (postId: string, content: string) => Promise<void>;
     deletePost: (postId: string) => Promise<void>;
-    createPost: (content: string, imageUri?: string | null) => Promise<void>; 
+    createPost: (content: string, imageUri?: string | null) => Promise<void>;
 
     loading: boolean;
     refreshing: boolean;
@@ -80,7 +80,7 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
     const fetchExplore = useCallback(async () => {
         if (!token) return;
 
-        setLoading(true);
+        setRefreshing(true);
         try {
             const response = await fetch(`${API_URL}/posts/explore`, {
                 headers: { 'Authorization': `Bearer ${token}` },
@@ -94,7 +94,7 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
         } catch (error) {
             console.error('Explore error:', error);
         } finally {
-            setLoading(false);
+            setRefreshing(false);
         }
     }, [token, addPosts]);
 
@@ -259,7 +259,7 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
             if (response.ok) {
                 const newPost = await response.json();
                 console.log('Server returned post:', newPost);
-                console.log('Image URL from server:', newPost.imageUrl); 
+                console.log('Image URL from server:', newPost.imageUrl);
 
                 setPosts(prev => {
                     const updated = new Map(prev);
@@ -290,7 +290,7 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
         feedPostIds.map(id => posts.get(id)).filter(Boolean) as Post[],
         [feedPostIds, posts]
     );
-// Need to fully understand what useMemo does
+    // Need to fully understand what useMemo does
     const explorePosts = useMemo(() =>
         explorePostIds.map(id => posts.get(id)).filter(Boolean) as Post[],
         [explorePostIds, posts]

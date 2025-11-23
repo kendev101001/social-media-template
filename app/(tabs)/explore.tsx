@@ -21,7 +21,6 @@ export default function ExploreScreen() {
     const { user, token } = useAuth();
     const {
         explorePosts,
-        loading: contextLoading,
         refreshing: contextRefreshing,
         toggleLike,
         addComment,
@@ -31,6 +30,7 @@ export default function ExploreScreen() {
     const [searchLoading, setSearchLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchMode, setSearchMode] = useState<'posts' | 'users'>('posts');
+    const [initialLoad, setInitialLoad] = useState(true);
 
     const searchUsers = async () => {
         if (!searchQuery.trim()) return;
@@ -56,7 +56,7 @@ export default function ExploreScreen() {
     };
 
     useEffect(() => {
-        fetchExplore();
+        fetchExplore().finally(() => setInitialLoad(false));
     }, []);
 
     const onRefresh = useCallback(() => {
@@ -93,10 +93,7 @@ export default function ExploreScreen() {
         }
     };
 
-    const isLoading = searchMode === 'users' ? searchLoading : contextLoading;
-    const isRefreshing = searchMode === 'posts' ? contextRefreshing : false;
-
-    if (isLoading && !isRefreshing) {
+    if (initialLoad && contextRefreshing) {
         return (
             <View style={styles.centerContainer}>
                 <ActivityIndicator size="large" color="#007AFF" />
