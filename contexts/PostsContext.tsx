@@ -18,8 +18,8 @@ interface PostsContextType {
     deletePost: (postId: string) => Promise<void>;
     createPost: (content: string, imageUri?: string | null) => Promise<void>;
 
-    loading: boolean;
-    refreshing: boolean;
+    loading: boolean;           // Meant for initial data fetching
+    refreshing: boolean;        // Meant for pull-to-refresh actions
 }
 
 const PostsContext = createContext<PostsContextType | undefined>(undefined);
