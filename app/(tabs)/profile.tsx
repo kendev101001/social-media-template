@@ -233,7 +233,7 @@ export default function ProfileScreen() {
             {/* Floating Action Button */}
             <TouchableOpacity
                 style={styles.fab}
-                onPress={() => router.push('/modal')}
+                onPress={() => router.push('/newPostModal')}
                 activeOpacity={0.8}
             >
                 <LinearGradient

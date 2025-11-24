@@ -20,7 +20,7 @@ import {
     View,
 } from 'react-native';
 
-export default function ModalScreen() {
+export default function NewPostModalScreen() {
     const [newPostContent, setNewPostContent] = useState('');
     const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
     const { createPost } = usePosts();
