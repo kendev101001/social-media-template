@@ -1,3 +1,5 @@
+
+
 import { usePosts } from '@/contexts/PostsContext';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
@@ -46,6 +48,39 @@ export default function ModalScreen() {
         setSelectedImage(undefined);
     };
 
+    const takePhoto = async () => {
+        // Request camera permission
+        const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            Alert.alert('Permission Required', 'Permssion to access camera is required!');
+            return;
+        }
+
+        // Launch camera
+        const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!result.canceled && result.assets[0]) {
+            setSelectedImage(result.assets[0].uri);
+        }
+    };
+
+    const showImageOptions = () => {
+        Alert.alert(
+            'Add Photo',
+            'Choose an option',
+            [
+                { text: 'Take Photo', onPress: takePhoto },
+                { text: 'Choose from Library', onPress: pickImage },
+                { text: 'Cancel', style: 'cancel' },
+            ]
+        );
+    };
+
     const handleCreatePost = async () => {
         if (!newPostContent.trim() && !selectedImage) {
             Alert.alert('Error', 'Post must have content or an image');
@@ -66,12 +101,15 @@ export default function ModalScreen() {
         }
     };
 
+    const canPost = newPostContent.trim() || selectedImage;
+
     return (
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
             <View style={styles.content}>
+                {/* Header */}
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => router.back()}>
                         <Text style={styles.cancelButton}>Cancel</Text>
@@ -123,7 +161,7 @@ export default function ModalScreen() {
                 <View style={styles.footer}>
                     <TouchableOpacity
                         style={styles.imagePickerButton}
-                        onPress={pickImage}
+                        onPress={showImageOptions}
                         disabled={posting}
                     >
                         <Ionicons
@@ -146,7 +184,7 @@ export default function ModalScreen() {
             </View>
 
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
-        </KeyboardAvoidingView>
+        </KeyboardAvoidingView >
     );
 }
 
@@ -185,10 +223,14 @@ const styles = StyleSheet.create({
     scrollContent: {
         flex: 1,
     },
+    scrollContent: {
+        flex: 1,
+    },
     postInput: {
         fontSize: 16,
         minHeight: 100,
         textAlignVertical: 'top',
+        minHeight: 100,
         paddingTop: 10,
     },
     imagePreviewContainer: {
