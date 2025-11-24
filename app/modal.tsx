@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
+    ActionSheetIOS,
     Alert,
     Image,
     KeyboardAvoidingView,
@@ -25,7 +26,7 @@ export default function ModalScreen() {
     const { createPost } = usePosts();
     const [posting, setPosting] = useState(false);
 
-    const pickImage = async () => {
+    const pickImageFromGallery = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if (permissionResult.granted === false) {
@@ -44,41 +45,65 @@ export default function ModalScreen() {
         }
     };
 
-    const removeImage = () => {
-        setSelectedImage(undefined);
-    };
-
     const takePhoto = async () => {
-        // Request camera permission
         const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
         if (permissionResult.granted === false) {
-            Alert.alert('Permission Required', 'Permssion to access camera is required!');
+            Alert.alert('Permission Required', 'Permission to access camera is required!');
             return;
         }
 
-        // Launch camera
         const result = await ImagePicker.launchCameraAsync({
             mediaTypes: ['images'],
             allowsEditing: true,
             quality: 1,
         });
 
-        if (!result.canceled && result.assets[0]) {
+        if (!result.canceled) {
             setSelectedImage(result.assets[0].uri);
         }
     };
 
-    const showImageOptions = () => {
-        Alert.alert(
-            'Add Photo',
-            'Choose an option',
-            [
-                { text: 'Take Photo', onPress: takePhoto },
-                { text: 'Choose from Library', onPress: pickImage },
-                { text: 'Cancel', style: 'cancel' },
-            ]
-        );
+    const showImagePickerOptions = () => {
+        if (Platform.OS === 'ios') {
+            ActionSheetIOS.showActionSheetWithOptions(
+                {
+                    options: ['Cancel', 'Take Photo', 'Choose from Gallery'],
+                    cancelButtonIndex: 0,
+                },
+                (buttonIndex) => {
+                    if (buttonIndex === 1) {
+                        takePhoto();
+                    } else if (buttonIndex === 2) {
+                        pickImageFromGallery();
+                    }
+                }
+            );
+        } else {
+            Alert.alert(
+                'Select Image',
+                'Choose an option',
+                [
+                    {
+                        text: 'Cancel',
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Take Photo',
+                        onPress: takePhoto,
+                    },
+                    {
+                        text: 'Choose from Gallery',
+                        onPress: pickImageFromGallery,
+                    },
+                ],
+                { cancelable: true }
+            );
+        }
+    };
+
+    const removeImage = () => {
+        setSelectedImage(undefined);
     };
 
     const handleCreatePost = async () => {
@@ -161,11 +186,11 @@ export default function ModalScreen() {
                 <View style={styles.footer}>
                     <TouchableOpacity
                         style={styles.imagePickerButton}
-                        onPress={showImageOptions}
+                        onPress={showImagePickerOptions}
                         disabled={posting}
                     >
                         <Ionicons
-                            name="image-outline"
+                            name="camera-outline"
                             size={24}
                             color={posting ? '#ccc' : '#007AFF'}
                         />
@@ -284,7 +309,7 @@ const styles = StyleSheet.create({
     textDisabled: {
         color: '#ccc',
     },
-    
+
     charCount: {
         color: '#666',
         fontSize: 12,
