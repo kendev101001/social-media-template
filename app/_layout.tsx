@@ -8,11 +8,12 @@ export default function RootLayout() {
         <AuthProvider>
             <PostsProvider>
                 <Stack>
-                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen name="index" options={{ headerShown: false }} />
+                    <Stack.Screen name='(auth)' options={{ headerShown: false }} />
+                    <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+                    <Stack.Screen name='index' options={{ headerShown: false }} />
                     <Stack.Screen name='settings' options={{ headerShown: false }} />
-                    <Stack.Screen name="newPostModal" options={{ presentation: 'modal', title: 'Modal' }} />
+                    <Stack.Screen name='new-post-modal' options={{ presentation: 'modal', headerShown: false }} />
+                    <Stack.Screen name='edit-profile' options={{ headerShown: false }} />
                 </Stack>
             </PostsProvider>
         </AuthProvider>

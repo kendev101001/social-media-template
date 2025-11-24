@@ -22,10 +22,7 @@ export default function EditProfileScreen() {
         name: '',
         username: user?.username || '',
         bio: '',
-        website: '',
-        instagram: '',
-        twitter: '',
-        linkedin: ''
+        link: ''
     });
 
     const handleSave = () => {
@@ -121,57 +118,12 @@ export default function EditProfileScreen() {
                                     <Ionicons name="globe-outline" size={20} color="#666" style={styles.linkIcon} />
                                     <TextInput
                                         style={styles.linkInput}
-                                        value={formData.website}
-                                        onChangeText={(text) => setFormData({ ...formData, website: text })}
+                                        value={formData.link}
+                                        onChangeText={(text) => setFormData({ ...formData, link: text })}
                                         placeholder="Website"
                                         placeholderTextColor="#999"
                                         autoCapitalize="none"
                                         keyboardType="url"
-                                    />
-                                </View>
-                            </View>
-
-                            {/* Instagram */}
-                            <View style={styles.inputContainer}>
-                                <View style={styles.linkInputWrapper}>
-                                    <Ionicons name="logo-instagram" size={20} color="#666" style={styles.linkIcon} />
-                                    <TextInput
-                                        style={styles.linkInput}
-                                        value={formData.instagram}
-                                        onChangeText={(text) => setFormData({ ...formData, instagram: text })}
-                                        placeholder="Instagram username"
-                                        placeholderTextColor="#999"
-                                        autoCapitalize="none"
-                                    />
-                                </View>
-                            </View>
-
-                            {/* Twitter */}
-                            <View style={styles.inputContainer}>
-                                <View style={styles.linkInputWrapper}>
-                                    <Ionicons name="logo-twitter" size={20} color="#666" style={styles.linkIcon} />
-                                    <TextInput
-                                        style={styles.linkInput}
-                                        value={formData.twitter}
-                                        onChangeText={(text) => setFormData({ ...formData, twitter: text })}
-                                        placeholder="Twitter username"
-                                        placeholderTextColor="#999"
-                                        autoCapitalize="none"
-                                    />
-                                </View>
-                            </View>
-
-                            {/* LinkedIn */}
-                            <View style={styles.inputContainer}>
-                                <View style={styles.linkInputWrapper}>
-                                    <Ionicons name="logo-linkedin" size={20} color="#666" style={styles.linkIcon} />
-                                    <TextInput
-                                        style={styles.linkInput}
-                                        value={formData.linkedin}
-                                        onChangeText={(text) => setFormData({ ...formData, linkedin: text })}
-                                        placeholder="LinkedIn profile"
-                                        placeholderTextColor="#999"
-                                        autoCapitalize="none"
                                     />
                                 </View>
                             </View>
