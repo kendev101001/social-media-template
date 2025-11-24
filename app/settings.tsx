@@ -90,7 +90,7 @@ export default function SettingsScreen() {
                         icon={<Feather name="user" size={22} color="#000" />}
                         title="Edit Profile"
                         subtitle="Change your profile info"
-                        onPress={() => { }}
+                        onPress={() => router.push('/edit-profile' as Href)}
                     />
                     <SettingsItem
                         icon={<Feather name="lock" size={22} color="#000" />}

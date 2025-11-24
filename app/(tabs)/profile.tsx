@@ -162,13 +162,6 @@ export default function ProfileScreen() {
                             <Text style={styles.websiteLink}>linktr.ee/{user?.username}</Text>
                         </TouchableOpacity>
                     </View>
-
-                    {/* Action Buttons */}
-                    <View style={styles.actionButtons}>
-                        <TouchableOpacity style={styles.editButton}>
-                            <Text style={styles.editButtonText}>Edit profile</Text>
-                        </TouchableOpacity>
-                    </View>
                 </View>
 
                 {/* Tab Bar */}
@@ -363,26 +356,6 @@ const styles = StyleSheet.create({
         color: '#00376b',
         fontWeight: '500',
         marginTop: 2,
-    },
-
-    actionButtons: {
-        flexDirection: 'row',
-        marginTop: 16,
-        gap: 8,
-    },
-
-    editButton: {
-        flex: 1,
-        backgroundColor: '#efefef',
-        paddingVertical: 8,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-
-    editButtonText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#000',
     },
 
     tabBar: {
