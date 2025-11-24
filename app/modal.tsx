@@ -193,10 +193,12 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+
     content: {
         flex: 1,
         padding: 20,
     },
+
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -204,35 +206,38 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         paddingTop: 10,
     },
+
     title: {
         fontSize: 18,
         fontWeight: 'bold',
     },
+
     cancelButton: {
         fontSize: 16,
         color: '#007AFF',
     },
+
     postButton: {
         fontSize: 16,
         color: '#007AFF',
         fontWeight: '600',
     },
+
     postButtonDisabled: {
         color: '#ccc',
     },
+
     scrollContent: {
         flex: 1,
     },
-    scrollContent: {
-        flex: 1,
-    },
+
     postInput: {
         fontSize: 16,
         minHeight: 100,
         textAlignVertical: 'top',
-        minHeight: 100,
         paddingTop: 10,
     },
+
     imagePreviewContainer: {
         marginTop: 15,
         marginBottom: 15,
@@ -240,11 +245,13 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         backgroundColor: '#f0f0f0',
     },
+
     imagePreview: {
         width: '100%',
         height: 300,
         borderRadius: 12,
     },
+
     removeImageButton: {
         position: 'absolute',
         top: 10,
@@ -252,27 +259,32 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         borderRadius: 15,
     },
+
     footer: {
         borderTopWidth: 1,
         borderTopColor: '#e0e0e0',
         paddingTop: 15,
         marginTop: 10,
     },
+
     imagePickerButton: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 10,
         marginBottom: 10,
     },
+
     imagePickerText: {
         marginLeft: 10,
         fontSize: 16,
         color: '#007AFF',
         fontWeight: '500',
     },
+
     textDisabled: {
         color: '#ccc',
     },
+    
     charCount: {
         color: '#666',
         fontSize: 12,
