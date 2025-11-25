@@ -10,9 +10,9 @@ export interface User extends BaseUser {
     bio?: string;
     link?: string;
     profilePictureUrl?: string;
-    followers: string[];
-    following: string[];
-    createdAt: string;
+    followers?: string[];
+    following?: string[];
+    createdAt?: string;
 }
 
 export interface Post {

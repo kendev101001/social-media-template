@@ -22,10 +22,11 @@ export default function EditProfileScreen() {
 
     // Initialize form state with current user data
     const [formData, setFormData] = useState({
-        name: '',
+        name: user?.name || '',
+        // I think username should be ! instead of ?
         username: user?.username || '',
-        bio: '',
-        link: ''
+        bio: user?.bio || '',
+        link: user?.link || ''
     });
 
     const handleSaveProfile = async () => {

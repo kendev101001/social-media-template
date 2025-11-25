@@ -68,6 +68,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // This doesn't belong in here but for the time being it's okay
     // Need to make a new context
     const updateUserProfile = async (profileData: ProfileData) => {
+        if (!token) { throw new Error('Not authenticated!'); }
+
         const response = await fetch(`${API_URL}/users/profile`, {
             method: 'PUT',
             headers: {
@@ -77,9 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             body: JSON.stringify(profileData)
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to update profile');
-        }
+        if (!response.ok) { throw new Error('Failed to update profile'); }
 
         const updatedUser = await response.json();
         setUser(updatedUser);
