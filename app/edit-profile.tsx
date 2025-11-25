@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
+    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -14,8 +15,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+
 export default function EditProfileScreen() {
-    const { user } = useAuth();
+    const { user, updateUserProfile } = useAuth();
+    const [updating, setUpdating] = useState(false);
 
     // Initialize form state with current user data
     const [formData, setFormData] = useState({
@@ -25,10 +28,22 @@ export default function EditProfileScreen() {
         link: ''
     });
 
-    const handleSave = () => {
-        // Placeholder for save functionality
-        console.log('Saving profile:', formData);
-        router.back();
+    const handleSaveProfile = async () => {
+        if (!formData.username) {
+            Alert.alert('Error', 'username cannot be blank');
+            return;
+        }
+
+        setUpdating(true);
+        try {
+            await updateUserProfile(formData);
+            router.back()
+        } catch (error) {
+            console.error("Error updating profile");
+            Alert.alert('Error', error instanceof Error ? error.message : 'Failed to update profile')
+        } finally {
+            setUpdating(false);
+        }
     };
 
     return (
@@ -39,7 +54,7 @@ export default function EditProfileScreen() {
                     <Text style={styles.cancelText}>Cancel</Text>
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Edit Profile</Text>
-                <TouchableOpacity onPress={handleSave}>
+                <TouchableOpacity onPress={handleSaveProfile}>
                     <Text style={styles.doneText}>Done</Text>
                 </TouchableOpacity>
             </View>

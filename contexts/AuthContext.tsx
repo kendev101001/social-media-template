@@ -1,12 +1,8 @@
 
+import { API_URL } from '@/config/api';
+import { ProfileData, User } from '@/types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-
-interface User {
-    id: string;
-    email: string;
-    username: string;
-}
 
 interface AuthContextType {
     user: User | null;
@@ -14,6 +10,7 @@ interface AuthContextType {
     loading: boolean;
     login: (token: string, user: User) => Promise<void>;
     logout: () => Promise<void>;
+    updateUserProfile: (profileData: ProfileData) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -67,8 +64,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+
+    // This doesn't belong in here but for the time being it's okay
+    // Need to make a new context
+    const updateUserProfile = async (profileData: ProfileData) => {
+        const response = await fetch(`${API_URL}/users/profile`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(profileData)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update profile');
+        }
+
+        const updatedUser = await response.json();
+        setUser(updatedUser);
+        await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+    };
+
     return (
-        <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+        <AuthContext.Provider value={{
+            user,
+            token,
+            loading,
+            login,
+            logout,
+            updateUserProfile
+        }}>
             {children}
         </AuthContext.Provider>
     );
