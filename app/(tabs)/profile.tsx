@@ -155,11 +155,10 @@ export default function ProfileScreen() {
 
                     {/* Name and Bio */}
                     <View style={styles.bioSection}>
-                        <Text style={styles.displayName}>{user?.username}</Text>
-                        <Text style={styles.bioText}>Digital creator ✨</Text>
-                        <Text style={styles.bioText}>Building amazing things</Text>
+                        <Text style={styles.displayName}>{user?.name}</Text>
+                        <Text style={styles.bioText}>{user?.bio}</Text>
                         <TouchableOpacity>
-                            <Text style={styles.websiteLink}>linktr.ee/{user?.username}</Text>
+                            <Text style={styles.websiteLink}>{user?.link}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
