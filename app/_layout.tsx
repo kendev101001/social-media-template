@@ -3,7 +3,6 @@ import { PostsProvider } from '@/contexts/PostsContext';
 import { Stack } from 'expo-router';
 
 export default function RootLayout() {
-
     return (
         <AuthProvider>
             <PostsProvider>
@@ -14,6 +13,7 @@ export default function RootLayout() {
                     <Stack.Screen name='settings' options={{ headerShown: false }} />
                     <Stack.Screen name='new-post-modal' options={{ presentation: 'modal', headerShown: false }} />
                     <Stack.Screen name='follows-modal' options={{ presentation: 'modal', headerShown: false }} />
+                    <Stack.Screen name='user/[userId]' options={{ headerShown: false }} />
                     <Stack.Screen name='edit-profile' options={{ headerShown: false }} />
                 </Stack>
             </PostsProvider>

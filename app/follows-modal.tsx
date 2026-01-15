@@ -1,19 +1,18 @@
 import { useFollows } from "@/hooks/useFollows";
 import { User } from "@/types/types";
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
 import {
     ActivityIndicator,
     FlatList,
     StyleSheet,
-    Text, TouchableOpacity, View
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 
 export default function FollowsModalScreen() {
-    // Uses userId as prop instead of context
-    // Because this is reusable for any user
-    // Not necessary the current user
     const { userId, type } = useLocalSearchParams<{ userId: string; type: 'followers' | 'following' }>();
     const { users, loading, fetchFollows } = useFollows();
 
@@ -23,14 +22,31 @@ export default function FollowsModalScreen() {
         }
     }, [userId, type]);
 
+    const handleUserPress = (targetUserId: string) => {
+        // Dismiss the modal first, then navigate to user profile
+        router.dismiss();
+        // Use setTimeout to ensure modal dismisses before navigation
+        setTimeout(() => {
+            router.push({
+                pathname: '/user/[userId]',
+                params: { userId: targetUserId }
+            });
+        }, 100);
+    };
+
     if (loading) {
-        return <ActivityIndicator size="large" />;
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#000" />
+            </View>
+        );
     }
 
     const userItem = ({ item }: { item: User }) => (
         <TouchableOpacity
             style={styles.userItem}
             activeOpacity={0.7}
+            onPress={() => handleUserPress(item.id)}
         >
             <View style={styles.avatar}>
                 <Text style={styles.avatarText}>
@@ -47,10 +63,20 @@ export default function FollowsModalScreen() {
 
     const separator = () => <View style={styles.separator} />;
 
+    const emptyList = () => (
+        <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>
+                No {type === 'followers' ? 'followers' : 'following'} yet
+            </Text>
+        </View>
+    );
+
     return (
-        <View>
+        <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.title}>{type === 'followers' ? 'Followers' : 'Following'}</Text>
+                <Text style={styles.title}>
+                    {type === 'followers' ? 'Followers' : 'Following'}
+                </Text>
             </View>
             <FlatList
                 data={users}
@@ -58,6 +84,7 @@ export default function FollowsModalScreen() {
                 renderItem={userItem}
                 contentContainerStyle={styles.listContainer}
                 ItemSeparatorComponent={separator}
+                ListEmptyComponent={emptyList}
                 showsVerticalScrollIndicator={false}
             />
         </View>
@@ -65,6 +92,18 @@ export default function FollowsModalScreen() {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+
     header: {
         flexDirection: 'row',
         justifyContent: 'center',
@@ -125,5 +164,18 @@ const styles = StyleSheet.create({
     listContainer: {
         paddingHorizontal: 16,
         paddingBottom: 40,
+        flexGrow: 1,
+    },
+
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 40,
+    },
+
+    emptyText: {
+        fontSize: 16,
+        color: '#999',
     },
 });
