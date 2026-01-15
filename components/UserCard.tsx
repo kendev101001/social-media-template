@@ -14,7 +14,10 @@ interface UserCardProps {
 }
 
 export default function UserCard({ user, onFollow, currentUserId }: UserCardProps) {
-    const isFollowing = user.followers.includes(currentUserId);
+    // These are temporary because they shouldn't be undefined
+    const followers = user.followers || [];
+    const following = user.following || [];
+    const isFollowing = followers.includes(currentUserId);
     const isOwnProfile = user.id === currentUserId;
 
     return (
@@ -28,7 +31,7 @@ export default function UserCard({ user, onFollow, currentUserId }: UserCardProp
                 <View style={styles.details}>
                     <Text style={styles.username}>@{user.username}</Text>
                     <Text style={styles.stats}>
-                        {user.followers.length} followers • {user.following.length} following
+                        {followers.length} followers • {following.length} following
                     </Text>
                 </View>
             </View>
