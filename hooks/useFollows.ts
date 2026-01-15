@@ -4,6 +4,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { User } from '@/types/types';
 import { useState } from 'react';
 
+// - Hooks are the mechanism
+// - Similar to a reusable function
+// - States are isolated to each component
+// - Local updates
+
 export function useFollows() {
     const { token } = useAuth();
     const [users, setUsers] = useState<User[]>([]);

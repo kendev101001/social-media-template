@@ -4,6 +4,9 @@ import { useEffect } from "react";
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
 
 export default function FollowsModalScreen() {
+    // Uses userId as prop instead of context
+    // Because this is reusable for any user
+    // Not necessary the current user
     const { userId, type } = useLocalSearchParams<{ userId: string; type: 'followers' | 'following' }>();
     const { users, loading, fetchFollows } = useFollows();
 

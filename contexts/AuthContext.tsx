@@ -13,6 +13,12 @@ interface AuthContextType {
     updateUserProfile: (profileData: ProfileData) => Promise<void>;
 }
 
+// - Context is a data container
+// - Makes values available to any component in a subtree
+// - Don't have to pass props manually
+// - State is preserved across components
+// - Global updates
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

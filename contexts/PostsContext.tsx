@@ -22,6 +22,12 @@ interface PostsContextType {
     refreshing: boolean;        // Meant for pull-to-refresh actions
 }
 
+// - Context is a data container
+// - Makes values available to any component in a subtree
+// - Don't have to pass props manually
+// - State is preserved across components
+// - Global updates
+
 const PostsContext = createContext<PostsContextType | undefined>(undefined);
 
 export function PostsProvider({ children }: { children: React.ReactNode }) {
