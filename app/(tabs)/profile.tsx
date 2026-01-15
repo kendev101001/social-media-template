@@ -142,11 +142,24 @@ export default function ProfileScreen() {
                                 <Text style={styles.statNumber}>{formatNumber(stats.posts)}</Text>
                                 <Text style={styles.statLabel}>Posts</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.statItem}>
+                            <TouchableOpacity
+                                style={styles.statItem}
+                                onPress={() => router.push({
+                                    pathname: '/follows-modal',
+                                    // This user? shouldn't be optional
+                                    params: { userId: user?.id, type: 'followers' }
+                                })}
+                            >
                                 <Text style={styles.statNumber}>{formatNumber(stats.followers)}</Text>
                                 <Text style={styles.statLabel}>Followers</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.statItem}>
+                            <TouchableOpacity
+                                style={styles.statItem}
+                                onPress={() => router.push({
+                                    pathname: '/follows-modal',
+                                    params: { userId: user?.id, type: 'following' }
+                                })}
+                            >
                                 <Text style={styles.statNumber}>{formatNumber(stats.following)}</Text>
                                 <Text style={styles.statLabel}>Following</Text>
                             </TouchableOpacity>
@@ -237,7 +250,7 @@ export default function ProfileScreen() {
                     <Feather name="plus" size={28} color="#fff" />
                 </LinearGradient>
             </TouchableOpacity>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
 

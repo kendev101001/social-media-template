@@ -77,12 +77,15 @@ export default function ExploreScreen() {
             if (response.ok) {
                 setUsers(users.map(u => {
                     if (u.id === userId) {
-                        const isFollowing = u.followers.includes(user!.id);
+                        // Need to properly fix because u.followers should never be undefined
+                        // Should just return empty []
+                        const followers = u.followers || [];
+                        const isFollowing = followers.includes(user!.id);
                         return {
                             ...u,
                             followers: isFollowing
-                                ? u.followers.filter(id => id !== user!.id)
-                                : [...u.followers, user!.id],
+                                ? followers.filter(id => id !== user!.id)
+                                : [...followers, user!.id],
                         };
                     }
                     return u;

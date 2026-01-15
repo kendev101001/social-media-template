@@ -13,6 +13,7 @@ export default function RootLayout() {
                     <Stack.Screen name='index' options={{ headerShown: false }} />
                     <Stack.Screen name='settings' options={{ headerShown: false }} />
                     <Stack.Screen name='new-post-modal' options={{ presentation: 'modal', headerShown: false }} />
+                    <Stack.Screen name='follows-modal' options={{ presentation: 'modal', headerShown: false }} />
                     <Stack.Screen name='edit-profile' options={{ headerShown: false }} />
                 </Stack>
             </PostsProvider>
