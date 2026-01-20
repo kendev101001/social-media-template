@@ -68,6 +68,19 @@ export default function FollowsModal() {
         }
     };
 
+    const handleUserPress = (userId: string) => {
+        // Dismiss modal and navigate to profile
+        router.dismiss(); // or router.back()
+
+        // Small delay to let modal close, then navigate
+        setTimeout(() => {
+            router.push({
+                pathname: '/(tabs)/profile/[userId]',
+                params: { userId }
+            });
+        }, 100);
+    };
+
     if (!user) {
         return (
             <View style={styles.centerContainer}>
@@ -109,6 +122,7 @@ export default function FollowsModal() {
                             user={item}
                             currentUserId={user.id}
                             onFollow={handleFollow}
+                            onPress={handleUserPress}
                         />
                     )}
                     contentContainerStyle={styles.listContent}

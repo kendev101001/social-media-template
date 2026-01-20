@@ -15,6 +15,7 @@ interface UserCardProps {
     showFollowButton?: boolean;
     showStats?: boolean;
     onFollow?: (userId: string) => void;
+    onPress?: (userId: string) => void;
 }
 
 export default function UserCard({
@@ -22,7 +23,8 @@ export default function UserCard({
     currentUserId,
     showFollowButton = true,
     showStats = true,
-    onFollow
+    onFollow,
+    onPress
 }: UserCardProps) {
     const followers = user.followers || [];
     const following = user.following || [];
@@ -30,11 +32,15 @@ export default function UserCard({
     const isOwnProfile = user.id === currentUserId;
 
     const handlePress = () => {
-        // Default navigation behavior
-        router.push({
-            pathname: '/(tabs)/profile/[userId]',
-            params: { userId: user.id }
-        });
+        if (onPress) {
+            onPress(user.id);
+        } else {
+            // Default navigation behavior
+            router.push({
+                pathname: '/(tabs)/profile/[userId]',
+                params: { userId: user.id }
+            });
+        }
     };
 
     const handleFollowPress = (e: any) => {
