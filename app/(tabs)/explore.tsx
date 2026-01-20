@@ -113,7 +113,7 @@ export default function ExploreScreen() {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top']}>
             <View style={styles.searchContainer}>
                 <TextInput
                     style={styles.searchInput}

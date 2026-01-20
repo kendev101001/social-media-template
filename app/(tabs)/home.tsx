@@ -40,7 +40,7 @@ export default function HomeScreen() {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top']}>
             {feedPosts.length === 0 ? (
                 <View style={styles.centerContainer}>
                     <Text style={styles.emptyText}>No posts yet</Text>
@@ -71,7 +71,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'black'
+        backgroundColor: 'white'
     },
     centerContainer: {
         flex: 1,
@@ -80,7 +80,6 @@ const styles = StyleSheet.create({
     },
     listContainer: {
         paddingVertical: 10,
-        backgroundColor: 'blue'
     },
     emptyText: {
         fontSize: 18,

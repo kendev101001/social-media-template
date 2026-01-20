@@ -20,7 +20,7 @@ export default function UserProfileScreen() {
     const showBackButton = true; // Always show back since we navigated here
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top']}>
             <ProfileContent userId={userId} showBackButton={showBackButton} />
         </SafeAreaView>
     );

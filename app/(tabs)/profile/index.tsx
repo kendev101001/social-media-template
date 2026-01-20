@@ -12,7 +12,7 @@ export default function ProfileScreen() {
     // Show loading while auth state is being determined
     if (loading) {
         return (
-            <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top']}>
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <ActivityIndicator size="large" color="#000" />
                 </View>
@@ -27,7 +27,7 @@ export default function ProfileScreen() {
 
     // Render own profile without back button
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top']}>
             <ProfileContent userId={user.id} showBackButton={false} />
         </SafeAreaView>
     );
