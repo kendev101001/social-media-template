@@ -71,7 +71,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#ffffffff',
+        backgroundColor: 'black'
     },
     centerContainer: {
         flex: 1,
@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     },
     listContainer: {
         paddingVertical: 10,
+        backgroundColor: 'blue'
     },
     emptyText: {
         fontSize: 18,
