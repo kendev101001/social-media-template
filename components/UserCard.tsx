@@ -1,4 +1,6 @@
 import { User } from '@/types/types';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React from 'react';
 import {
     StyleSheet,
@@ -9,40 +11,65 @@ import {
 
 interface UserCardProps {
     user: User;
-    onFollow: (userId: string) => void;
+    onFollow?: (userId: string) => void;
     currentUserId: string;
+    showFollowButton?: boolean;
+    onPress?: (userId: string) => void;
 }
 
-export default function UserCard({ user, onFollow, currentUserId }: UserCardProps) {
-    // These are temporary because they shouldn't be undefined
+export default function UserCard({
+    user,
+    onFollow,
+    currentUserId,
+    showFollowButton = true,
+    onPress
+}: UserCardProps) {
     const followers = user.followers || [];
     const following = user.following || [];
     const isFollowing = followers.includes(currentUserId);
     const isOwnProfile = user.id === currentUserId;
 
+    const handlePress = () => {
+        if (onPress) {
+            onPress(user.id);
+        } else {
+            // Default navigation behavior
+            router.push({
+                pathname: '/(tabs)/profile/[userId]',
+                params: { userId: user.id }
+            });
+        }
+    };
+
+    const handleFollowPress = (e: any) => {
+        e.stopPropagation(); // Prevent triggering the parent TouchableOpacity
+        if (onFollow) {
+            onFollow(user.id);
+        }
+    };
+
     return (
-        <View style={styles.container}>
+        <TouchableOpacity style={styles.userItem} onPress={handlePress}>
+            <View style={styles.userAvatar}>
+                <Text style={styles.userAvatarText}>
+                    {user.username.charAt(0).toUpperCase()}
+                </Text>
+            </View>
             <View style={styles.userInfo}>
-                <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>
-                        {user.username.charAt(0).toUpperCase()}
-                    </Text>
-                </View>
-                <View style={styles.details}>
-                    <Text style={styles.username}>@{user.username}</Text>
-                    <Text style={styles.stats}>
-                        {followers.length} followers • {following.length} following
-                    </Text>
-                </View>
+                <Text style={styles.username}>@{user.username}</Text>
+                {user.name && <Text style={styles.name}>{user.name}</Text>}
+                <Text style={styles.stats}>
+                    {followers.length} followers • {following.length} following
+                </Text>
             </View>
 
-            {!isOwnProfile && (
+            {showFollowButton && !isOwnProfile && onFollow ? (
                 <TouchableOpacity
                     style={[
                         styles.followButton,
                         isFollowing && styles.followingButton
                     ]}
-                    onPress={() => onFollow(user.id)}
+                    onPress={handleFollowPress}
                 >
                     <Text style={[
                         styles.followButtonText,
@@ -51,66 +78,65 @@ export default function UserCard({ user, onFollow, currentUserId }: UserCardProp
                         {isFollowing ? 'Following' : 'Follow'}
                     </Text>
                 </TouchableOpacity>
+            ) : (
+                <Ionicons name="chevron-forward" size={20} color="#ccc" />
             )}
-        </View>
+        </TouchableOpacity>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    userItem: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
         backgroundColor: '#fff',
-        padding: 15,
-        marginHorizontal: 10,
-        marginVertical: 5,
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
     },
-    userInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        flex: 1,
-    },
-    avatar: {
+    userAvatar: {
         width: 50,
         height: 50,
         borderRadius: 25,
-        backgroundColor: '#007AFF',
+        backgroundColor: '#f0f0f0',
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 12,
     },
-    avatarText: {
-        color: '#fff',
+    userAvatarText: {
         fontSize: 20,
-        fontWeight: 'bold',
+        fontWeight: '600',
+        color: '#666',
     },
-    details: {
+    userInfo: {
         flex: 1,
     },
     username: {
         fontSize: 16,
         fontWeight: '600',
-        marginBottom: 2,
+        color: '#000',
+    },
+    name: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 2,
     },
     stats: {
         fontSize: 13,
         color: '#666',
+        marginTop: 2,
     },
     followButton: {
-        backgroundColor: '#007AFF',
+        backgroundColor: '#000',
         paddingHorizontal: 20,
-        paddingVertical: 8,
-        borderRadius: 20,
+        paddingVertical: 6,
+        borderRadius: 6,
+        minWidth: 90,
+        alignItems: 'center',
     },
     followingButton: {
-        backgroundColor: '#e0e0e0',
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#dbdbdb',
     },
     followButtonText: {
         color: '#fff',
@@ -118,6 +144,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     followingButtonText: {
-        color: '#333',
+        color: '#000',
     },
 });
