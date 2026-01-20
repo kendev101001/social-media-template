@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function FollowsModal() {
     const { userId, type } = useLocalSearchParams<{ userId: string; type: 'followers' | 'following' }>();
-    const { token, user: currentUser } = useAuth();
+    const { token, user } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -80,9 +80,8 @@ export default function FollowsModal() {
                     renderItem={({ item }) => (
                         <UserCard
                             user={item}
-                            currentUserId={currentUser?.id || ''}
-                            showFollowButton={true}
-                            onPress={handleUserPress}
+                            onFollow={handleFollow}
+                            currentUserId={user.id}
                         />
                     )}
                     contentContainerStyle={styles.listContent}
