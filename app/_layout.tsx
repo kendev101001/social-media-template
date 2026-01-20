@@ -1,3 +1,4 @@
+// app/_layout.tsx
 import { AuthProvider } from '@/contexts/AuthContext';
 import { PostsProvider } from '@/contexts/PostsContext';
 import { Stack } from 'expo-router';
@@ -7,14 +8,15 @@ export default function RootLayout() {
         <AuthProvider>
             <PostsProvider>
                 <Stack>
-                    <Stack.Screen name='(auth)' options={{ headerShown: false }} />
-                    <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-                    <Stack.Screen name='index' options={{ headerShown: false }} />
-                    <Stack.Screen name='settings' options={{ headerShown: false }} />
-                    <Stack.Screen name='new-post-modal' options={{ presentation: 'modal', headerShown: false }} />
-                    <Stack.Screen name='follows-modal' options={{ presentation: 'modal', headerShown: false }} />
-                    <Stack.Screen name='user/[userId]' options={{ headerShown: false }} />
-                    <Stack.Screen name='edit-profile' options={{ headerShown: false }} />
+                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="index" options={{ headerShown: false }} />
+                    <Stack.Screen name="settings" options={{ headerShown: false }} />
+                    <Stack.Screen name="new-post-modal" options={{ presentation: 'modal', headerShown: false }} />
+                    <Stack.Screen name="follows-modal" options={{ presentation: 'modal', headerShown: false }} />
+                    <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
+                    {/* REMOVE the old user/[userId] route - it's now inside tabs */}
+                    {/* <Stack.Screen name='user/[userId]' options={{ headerShown: false }} /> */}
                 </Stack>
             </PostsProvider>
         </AuthProvider>
