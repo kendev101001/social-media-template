@@ -187,9 +187,7 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
                 )}
                 <View style={[styles.usernameHeader, showBackButton && styles.usernameHeaderWithBack]}>
                     <Text style={styles.headerUsername}>{profile.username}</Text>
-                    {isOwnProfile && !showBackButton && (
-                        <Ionicons name="chevron-down" size={16} color="#000" />
-                    )}
+                    {isOwnProfile && !showBackButton}
                 </View>
                 {/* Settings icon - only for own profile */}
                 {isOwnProfile && (
@@ -262,12 +260,7 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
                     </View>
 
                     {/* Action Buttons */}
-                    {isOwnProfile ? (
-                        // Edit Profile Button for own profile
-                        <TouchableOpacity style={styles.editProfileButton} onPress={() => router.push('/edit-profile' as Href)}>
-                            <Text style={styles.editProfileButtonText}>Edit Profile</Text>
-                        </TouchableOpacity>
-                    ) : (
+                    {!isOwnProfile &&
                         // Follow Button for other users
                         <TouchableOpacity
                             style={[styles.followButton, isFollowing && styles.followingButton]}
@@ -282,7 +275,7 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
                                 </Text>
                             )}
                         </TouchableOpacity>
-                    )}
+                    }
                 </View>
 
                 {/* Tab Bar */}
@@ -361,46 +354,267 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#fff' },
-    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
-    errorText: { fontSize: 16, color: '#666', marginBottom: 16 },
-    errorBackButton: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#007AFF', borderRadius: 8 },
-    errorBackButtonText: { color: '#fff', fontSize: 14, fontWeight: '600' },
-    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: '#dbdbdb' },
-    backButton: { padding: 4, marginRight: 8 },
-    usernameHeader: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4 },
-    usernameHeaderWithBack: { justifyContent: 'flex-start' },
-    headerUsername: { fontSize: 20, fontWeight: '700' },
-    headerRight: { flexDirection: 'row', alignItems: 'center', minWidth: 44 },
-    headerIcon: { marginLeft: 20 },
-    profileSection: { paddingHorizontal: 16, marginBottom: 16 },
-    profileTop: { flexDirection: 'row', alignItems: 'center', marginTop: 16 },
-    avatarContainer: { marginRight: 28 },
-    avatarGradient: { width: 86, height: 86, borderRadius: 43, padding: 3 },
-    avatarInner: { flex: 1, backgroundColor: '#fff', borderRadius: 40, justifyContent: 'center', alignItems: 'center' },
-    avatarText: { fontSize: 32, fontWeight: '600', color: '#000' },
-    statsContainer: { flex: 1, flexDirection: 'row', justifyContent: 'space-around' },
-    statItem: { alignItems: 'center' },
-    statNumber: { fontSize: 18, fontWeight: '700', color: '#000' },
-    statLabel: { fontSize: 13, color: '#000', marginTop: 2 },
-    bioSection: { marginTop: 12 },
-    displayName: { fontSize: 14, fontWeight: '600', color: '#000' },
-    bioText: { fontSize: 14, color: '#000', lineHeight: 20 },
-    websiteLink: { fontSize: 14, color: '#00376b', fontWeight: '500', marginTop: 2 },
-    editProfileButton: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#dbdbdb', paddingVertical: 10, paddingHorizontal: 24, borderRadius: 8, alignItems: 'center', marginTop: 16 },
-    editProfileButtonText: { color: '#000', fontSize: 14, fontWeight: '600' },
-    followButton: { backgroundColor: '#007AFF', paddingVertical: 10, paddingHorizontal: 24, borderRadius: 8, alignItems: 'center', marginTop: 16 },
-    followingButton: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#dbdbdb' },
-    followButtonText: { color: '#fff', fontSize: 14, fontWeight: '600' },
-    followingButtonText: { color: '#000' },
-    sectionTitle: { fontSize: 18, fontWeight: 'bold', paddingHorizontal: 20, paddingVertical: 10, color: '#333' },
-    tabBar: { flexDirection: 'row', borderTopWidth: 0.5, borderTopColor: '#dbdbdb' },
-    tab: { flex: 1, alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'transparent' },
-    activeTab: { borderBottomColor: '#000' },
-    postsSection: { flex: 1, paddingVertical: 10 },
-    emptyContainer: { alignItems: 'center', paddingVertical: 50 },
-    emptyText: { fontSize: 16, color: '#666', marginBottom: 5 },
-    emptySubtext: { fontSize: 14, color: '#999' },
-    fab: { position: 'absolute', bottom: 24, right: 24, elevation: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
-    fabGradient: { width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center' },
+    container: {
+        flex: 1,
+        backgroundColor: '#fff'
+    },
+
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff'
+    },
+
+    errorText: {
+        fontSize: 16,
+        color: '#666',
+        marginBottom: 16
+    },
+
+    errorBackButton: {
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        backgroundColor: '#007AFF',
+        borderRadius: 8
+    },
+
+    errorBackButtonText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '600'
+    },
+
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#dbdbdb'
+    },
+
+    backButton: {
+        padding: 4,
+        marginRight: 8
+    },
+
+    usernameHeader: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4
+    },
+
+    usernameHeaderWithBack: {
+        justifyContent: 'flex-start'
+    },
+
+    headerUsername: {
+        fontSize: 20,
+        fontWeight: '700'
+    },
+
+    headerRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        minWidth: 44
+    },
+
+    headerIcon: {
+        marginLeft: 20
+    },
+
+    profileSection: {
+        paddingHorizontal: 16,
+        marginBottom: 16
+    },
+
+    profileTop: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 16
+    },
+
+    avatarContainer: {
+        marginRight: 28
+    },
+
+    avatarGradient: {
+        width: 86,
+        height: 86,
+        borderRadius: 43,
+        padding: 3
+    },
+
+    avatarInner: {
+        flex: 1,
+        backgroundColor: '#fff',
+        borderRadius: 40,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    avatarText: {
+        fontSize: 32,
+        fontWeight: '600',
+        color: '#000'
+    },
+
+    statsContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-around'
+    },
+
+    statItem: {
+        alignItems: 'center'
+    },
+
+    statNumber: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#000'
+    },
+
+    statLabel: {
+        fontSize: 13,
+        color: '#000',
+        marginTop: 2
+    },
+
+    bioSection: {
+        marginTop: 12
+    },
+
+    displayName: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#000'
+    },
+
+    bioText: {
+        fontSize: 14,
+        color: '#000',
+        lineHeight: 20
+    },
+
+    websiteLink: {
+        fontSize: 14,
+        color: '#00376b',
+        fontWeight: '500',
+        marginTop: 2
+    },
+
+    editProfileButton: {
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#dbdbdb',
+        paddingVertical: 10,
+        paddingHorizontal: 24,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 16
+    },
+
+    editProfileButtonText: {
+        color: '#000',
+        fontSize: 14,
+        fontWeight: '600'
+    },
+
+    followButton: {
+        backgroundColor: '#007AFF',
+        paddingVertical: 10,
+        paddingHorizontal: 24,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 16
+    },
+
+    followingButton: {
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#dbdbdb'
+    },
+
+    followButtonText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '600'
+    },
+
+    followingButtonText: {
+        color: '#000'
+    },
+
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        color: '#333'
+    },
+
+    tabBar: {
+        flexDirection: 'row',
+        borderTopWidth: 0.5,
+        borderTopColor: '#dbdbdb'
+    },
+
+    tab: {
+        flex: 1,
+        alignItems: 'center',
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: 'transparent'
+    },
+
+    activeTab: {
+        borderBottomColor: '#000'
+    },
+
+    postsSection: {
+        flex: 1,
+        paddingVertical: 10
+    },
+
+    emptyContainer: {
+        alignItems: 'center',
+        paddingVertical: 50
+    },
+
+    emptyText: {
+        fontSize: 16,
+        color: '#666',
+        marginBottom: 5
+    },
+
+    emptySubtext: {
+        fontSize: 14,
+        color: '#999'
+    },
+
+    fab: {
+        position: 'absolute',
+        bottom: 24,
+        right: 24,
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 4
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 8
+    },
+
+    fabGradient: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
 });

@@ -108,19 +108,91 @@ export default function FollowsModal() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#fff' },
-    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: '#dbdbdb' },
-    closeButton: { padding: 4 },
-    headerTitle: { fontSize: 18, fontWeight: '600' },
-    headerSpacer: { width: 36 }, // Same as close button for centering
-    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    emptyText: { fontSize: 16, color: '#666' },
-    listContent: { paddingVertical: 8 },
-    userItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 },
-    userAvatar: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-    userAvatarText: { fontSize: 20, fontWeight: '600', color: '#666' },
-    userInfo: { flex: 1 },
-    username: { fontSize: 16, fontWeight: '600', color: '#000' },
-    name: { fontSize: 14, color: '#666', marginTop: 2 },
+    container: {
+        flex: 1,
+        backgroundColor: '#fff'
+    },
+
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#dbdbdb'
+    },
+
+    closeButton: {
+        padding: 4
+    },
+
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '600'
+    },
+
+    headerSpacer: {
+        width: 36
+    },
+
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    emptyText: {
+        fontSize: 16,
+        color: '#666'
+    },
+
+    listContent: {
+        paddingVertical: 8
+    },
+
+    userItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12
+    },
+
+    userAvatar: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: '#f0f0f0',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12
+    },
+
+    userAvatarText: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#666'
+    },
+
+    userInfo: {
+        flex: 1
+    },
+
+    username: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#000'
+    },
+
+    name: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 2
+    },
 });
