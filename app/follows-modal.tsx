@@ -68,6 +68,14 @@ export default function FollowsModal() {
         }
     };
 
+    if (!user) {
+        return (
+            <View style={styles.centerContainer}>
+                <ActivityIndicator size="large" color="#007AFF" />
+            </View>
+        );
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
@@ -99,10 +107,8 @@ export default function FollowsModal() {
                     renderItem={({ item }) => (
                         <UserCard
                             user={item}
-                            // I need to check why I need a ! here but not on explore
-                            currentUserId={user!.id}
+                            currentUserId={user.id}
                             onFollow={handleFollow}
-                            showStats={false}
                         />
                     )}
                     contentContainerStyle={styles.listContent}
@@ -116,6 +122,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff'
+    },
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: 50,
     },
     header: {
         flexDirection: 'row',
