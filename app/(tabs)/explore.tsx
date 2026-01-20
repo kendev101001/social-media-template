@@ -134,8 +134,8 @@ export default function ExploreScreen() {
                     renderItem={({ item }) => (
                         <UserCard
                             user={item}
-                            onFollow={handleFollow}
                             currentUserId={user.id}
+                            onFollow={handleFollow}
                         />
                     )}
                     refreshControl={

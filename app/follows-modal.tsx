@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function FollowsModal() {
     const { userId, type } = useLocalSearchParams<{ userId: string; type: 'followers' | 'following' }>();
-    const { token, user } = useAuth();
+    const { user, token } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -37,16 +37,35 @@ export default function FollowsModal() {
         fetchUsers();
     }, [userId, type, token]);
 
-    const handleUserPress = (selectedUserId: string) => {
-        // Close the modal first
-        router.back();
-        // Small delay to ensure modal is closed, then navigate
-        setTimeout(() => {
-            router.push({
-                pathname: '/(tabs)/profile/[userId]',
-                params: { userId: selectedUserId }
+    const handleFollow = async (userId: string) => {
+        try {
+            const response = await fetch(`${API_URL}/users/${userId}/follow`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
             });
-        }, 100);
+
+            if (response.ok) {
+                setUsers(users.map(u => {
+                    if (u.id === userId) {
+                        // Need to properly fix because u.followers should never be undefined
+                        // Should just return empty []
+                        const followers = u.followers || [];
+                        const isFollowing = followers.includes(user!.id);
+                        return {
+                            ...u,
+                            followers: isFollowing
+                                ? followers.filter(id => id !== user!.id)
+                                : [...followers, user!.id],
+                        };
+                    }
+                    return u;
+                }));
+            }
+        } catch (error) {
+            console.error('Follow error:', error);
+        }
     };
 
     return (
@@ -80,8 +99,10 @@ export default function FollowsModal() {
                     renderItem={({ item }) => (
                         <UserCard
                             user={item}
+                            // I need to check why I need a ! here but not on explore
+                            currentUserId={user!.id}
                             onFollow={handleFollow}
-                            currentUserId={user.id}
+                            showStats={false}
                         />
                     )}
                     contentContainerStyle={styles.listContent}

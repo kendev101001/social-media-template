@@ -11,18 +11,18 @@ import {
 
 interface UserCardProps {
     user: User;
-    onFollow?: (userId: string) => void;
     currentUserId: string;
     showFollowButton?: boolean;
-    onPress?: (userId: string) => void;
+    showStats?: boolean;
+    onFollow?: (userId: string) => void;
 }
 
 export default function UserCard({
     user,
-    onFollow,
     currentUserId,
     showFollowButton = true,
-    onPress
+    showStats = true,
+    onFollow
 }: UserCardProps) {
     const followers = user.followers || [];
     const following = user.following || [];
@@ -30,15 +30,11 @@ export default function UserCard({
     const isOwnProfile = user.id === currentUserId;
 
     const handlePress = () => {
-        if (onPress) {
-            onPress(user.id);
-        } else {
-            // Default navigation behavior
-            router.push({
-                pathname: '/(tabs)/profile/[userId]',
-                params: { userId: user.id }
-            });
-        }
+        // Default navigation behavior
+        router.push({
+            pathname: '/(tabs)/profile/[userId]',
+            params: { userId: user.id }
+        });
     };
 
     const handleFollowPress = (e: any) => {
@@ -58,9 +54,11 @@ export default function UserCard({
             <View style={styles.userInfo}>
                 <Text style={styles.username}>@{user.username}</Text>
                 {user.name && <Text style={styles.name}>{user.name}</Text>}
-                <Text style={styles.stats}>
-                    {followers.length} followers • {following.length} following
-                </Text>
+                {showStats && (
+                    <Text style={styles.stats}>
+                        {followers.length} followers • {following.length} following
+                    </Text>
+                )}
             </View>
 
             {showFollowButton && !isOwnProfile && onFollow ? (
