@@ -4,7 +4,6 @@ import { API_URL } from '@/config/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePosts } from '@/contexts/PostsContext';
 import { Feather, Ionicons, Octicons } from '@expo/vector-icons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Href, router } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -290,7 +289,7 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
                 <Text style={styles.sectionTitle}>
                     {isOwnProfile ? 'My Posts' : 'Posts'}
                 </Text>
-                <View style={styles.tabBar}>
+                {/* <View style={styles.tabBar}>
                     <TouchableOpacity
                         style={[styles.tab, activeTab === 'main' && styles.activeTab]}
                         onPress={() => setActiveTab('main')}
@@ -311,7 +310,7 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
                             <Ionicons name="bookmark-outline" size={24} color={activeTab === 'bookmarked' ? '#000' : '#999'} />
                         </TouchableOpacity>
                     )}
-                </View>
+                </View> */}
 
                 {/* Posts */}
                 <View style={styles.postsSection}>

@@ -1,4 +1,4 @@
-// app/follows-modal.tsx
+
 import { API_URL } from '@/config/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';

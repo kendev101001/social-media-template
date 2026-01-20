@@ -1,12 +1,11 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { Href, router } from 'expo-router';
 import React from 'react';
 import {
     Alert,
     ScrollView,
     StyleSheet,
-    Switch,
     Text,
     TouchableOpacity,
     View
@@ -91,175 +90,6 @@ export default function SettingsScreen() {
                         title="Edit Profile"
                         subtitle="Change your profile info"
                         onPress={() => router.push('/edit-profile' as Href)}
-                    />
-                    <SettingsItem
-                        icon={<Feather name="lock" size={22} color="#000" />}
-                        title="Password and Security"
-                        subtitle="Manage your password"
-                        onPress={() => { }}
-                    />
-                    <SettingsItem
-                        icon={<Feather name="mail" size={22} color="#000" />}
-                        title="Email"
-                        subtitle={user?.email || 'Add email'}
-                        onPress={() => { }}
-                    />
-                    <SettingsItem
-                        icon={<Feather name="smartphone" size={22} color="#000" />}
-                        title="Phone Number"
-                        subtitle="Add phone number"
-                        onPress={() => { }}
-                    />
-                </SettingsSection>
-
-                {/* Privacy Section */}
-                <SettingsSection title="Privacy">
-                    <SettingsItem
-                        icon={<Ionicons name="eye-off-outline" size={22} color="#000" />}
-                        title="Private Account"
-                        subtitle="Only followers can see your posts"
-                        showChevron={false}
-                        rightElement={
-                            <Switch
-                                value={privateAccount}
-                                onValueChange={setPrivateAccount}
-                                trackColor={{ false: '#e0e0e0', true: '#34C759' }}
-                                thumbColor="#fff"
-                            />
-                        }
-                    />
-                    <SettingsItem
-                        icon={<Feather name="activity" size={22} color="#000" />}
-                        title="Activity Status"
-                        subtitle="Show when you're active"
-                        showChevron={false}
-                        rightElement={
-                            <Switch
-                                value={showActivityStatus}
-                                onValueChange={setShowActivityStatus}
-                                trackColor={{ false: '#e0e0e0', true: '#34C759' }}
-                                thumbColor="#fff"
-                            />
-                        }
-                    />
-                    <SettingsItem
-                        icon={<MaterialIcons name="block" size={22} color="#000" />}
-                        title="Blocked Accounts"
-                        onPress={() => { }}
-                    />
-                    <SettingsItem
-                        icon={<Feather name="volume-x" size={22} color="#000" />}
-                        title="Muted Accounts"
-                        onPress={() => { }}
-                    />
-                    <SettingsItem
-                        icon={<Feather name="eye" size={22} color="#000" />}
-                        title="Story Settings"
-                        subtitle="Control who can see your stories"
-                        onPress={() => { }}
-                    />
-                </SettingsSection>
-
-                {/* Notifications Section */}
-                <SettingsSection title="Notifications">
-                    <SettingsItem
-                        icon={<Ionicons name="notifications-outline" size={22} color="#000" />}
-                        title="Push Notifications"
-                        showChevron={false}
-                        rightElement={
-                            <Switch
-                                value={pushNotifications}
-                                onValueChange={setPushNotifications}
-                                trackColor={{ false: '#e0e0e0', true: '#34C759' }}
-                                thumbColor="#fff"
-                            />
-                        }
-                    />
-                    <SettingsItem
-                        icon={<Feather name="mail" size={22} color="#000" />}
-                        title="Email Notifications"
-                        showChevron={false}
-                        rightElement={
-                            <Switch
-                                value={emailNotifications}
-                                onValueChange={setEmailNotifications}
-                                trackColor={{ false: '#e0e0e0', true: '#34C759' }}
-                                thumbColor="#fff"
-                            />
-                        }
-                    />
-                    <SettingsItem
-                        icon={<Feather name="heart" size={22} color="#000" />}
-                        title="Likes and Comments"
-                        subtitle="Choose notification preferences"
-                        onPress={() => { }}
-                    />
-                    <SettingsItem
-                        icon={<Feather name="user-plus" size={22} color="#000" />}
-                        title="New Followers"
-                        subtitle="Get notified about new followers"
-                        onPress={() => { }}
-                    />
-                </SettingsSection>
-
-                {/* Content & Display Section */}
-                <SettingsSection title="Content & Display">
-                    <SettingsItem
-                        icon={<Ionicons name="language-outline" size={22} color="#000" />}
-                        title="Language"
-                        subtitle="English"
-                        onPress={() => { }}
-                    />
-                    <SettingsItem
-                        icon={<Ionicons name="moon-outline" size={22} color="#000" />}
-                        title="Dark Mode"
-                        subtitle="System default"
-                        onPress={() => { }}
-                    />
-                    <SettingsItem
-                        icon={<Feather name="download" size={22} color="#000" />}
-                        title="Data Saver"
-                        subtitle="Reduce data usage"
-                        onPress={() => { }}
-                    />
-                </SettingsSection>
-
-                {/* Support Section */}
-                <SettingsSection title="Support">
-                    <SettingsItem
-                        icon={<Feather name="help-circle" size={22} color="#000" />}
-                        title="Help Center"
-                        onPress={() => { }}
-                    />
-                    <SettingsItem
-                        icon={<Feather name="flag" size={22} color="#000" />}
-                        title="Report a Problem"
-                        onPress={() => { }}
-                    />
-                    <SettingsItem
-                        icon={<Feather name="file-text" size={22} color="#000" />}
-                        title="Terms of Service"
-                        onPress={() => { }}
-                    />
-                    <SettingsItem
-                        icon={<Feather name="shield" size={22} color="#000" />}
-                        title="Privacy Policy"
-                        onPress={() => { }}
-                    />
-                </SettingsSection>
-
-                {/* About Section */}
-                <SettingsSection title="About">
-                    <SettingsItem
-                        icon={<Feather name="info" size={22} color="#000" />}
-                        title="About"
-                        subtitle="Version 1.0.0"
-                        onPress={() => { }}
-                    />
-                    <SettingsItem
-                        icon={<Feather name="share-2" size={22} color="#000" />}
-                        title="Tell a Friend"
-                        onPress={() => { }}
                     />
                 </SettingsSection>
 
