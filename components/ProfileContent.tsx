@@ -213,7 +213,7 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
                         {/* Avatar with gradient border */}
                         <View style={styles.avatarContainer}>
                             <LinearGradient
-                                colors={['#F58529', '#DD2A7B', '#8134AF', '#515BD4']}
+                                colors={['#000000', '#000000']}
                                 style={styles.avatarGradient}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 1 }}
@@ -330,26 +330,28 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
                         ))
                     )}
                 </View>
-            </ScrollView>
+            </ScrollView >
 
             {/* Floating Action Button - only for own profile */}
-            {isOwnProfile && (
-                <TouchableOpacity
-                    style={styles.fab}
-                    onPress={() => router.push('/new-post-modal')}
-                    activeOpacity={0.8}
-                >
-                    <LinearGradient
-                        colors={['#F58529', '#DD2A7B', '#8134AF', '#515BD4']}
-                        style={styles.fabGradient}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
+            {
+                isOwnProfile && (
+                    <TouchableOpacity
+                        style={styles.fab}
+                        onPress={() => router.push('/new-post-modal')}
+                        activeOpacity={0.8}
                     >
-                        <Feather name="plus" size={28} color="#fff" />
-                    </LinearGradient>
-                </TouchableOpacity>
-            )}
-        </View>
+                        <LinearGradient
+                            colors={['#F58529', '#DD2A7B', '#8134AF', '#515BD4']}
+                            style={styles.fabGradient}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                        >
+                            <Feather name="plus" size={28} color="#fff" />
+                        </LinearGradient>
+                    </TouchableOpacity>
+                )
+            }
+        </View >
     );
 }
 
