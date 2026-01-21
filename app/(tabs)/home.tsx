@@ -20,7 +20,9 @@ export default function HomeScreen() {
         toggleLike,
         addComment,
         loading,
-        refreshing
+        refreshing,
+        toggleBookmark,
+        bookmarkedPosts
     } = usePosts();
 
     useEffect(() => {
@@ -55,7 +57,9 @@ export default function HomeScreen() {
                             post={item}
                             onLike={toggleLike}
                             onComment={addComment}
+                            onBookmark={toggleBookmark}
                             currentUserId={user.id}
+                            isBookmarked={bookmarkedPosts.some(p => p.id === item.id)}
                         />
                     )}
                     refreshControl={

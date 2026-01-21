@@ -8,25 +8,22 @@ interface PostsContextType {
     feedPosts: Post[];
     explorePosts: Post[];
     userPosts: Map<string, Post[]>;
+    bookmarkedPosts: Post[];
 
     fetchFeed: () => Promise<void>;
     fetchExplore: () => Promise<void>;
     fetchUserPosts: (userId: string) => Promise<void>;
+    fetchBookmarkedPosts: () => Promise<void>;
 
     toggleLike: (postId: string) => Promise<void>;
+    toggleBookmark: (postId: string) => Promise<void>;
     addComment: (postId: string, content: string) => Promise<void>;
     deletePost: (postId: string) => Promise<void>;
     createPost: (content: string, imageUri?: string | null) => Promise<void>;
 
-    loading: boolean;           // Meant for initial data fetching
-    refreshing: boolean;        // Meant for pull-to-refresh actions
+    loading: boolean;
+    refreshing: boolean;
 }
-
-// - Context is a data container
-// - Makes values available to any component in a subtree
-// - Don't have to pass props manually
-// - State is preserved across components
-// - Global updates
 
 const PostsContext = createContext<PostsContextType | undefined>(undefined);
 
@@ -37,6 +34,7 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
     const [feedPostIds, setFeedPostIds] = useState<string[]>([]);
     const [explorePostIds, setExplorePostIds] = useState<string[]>([]);
     const [userPostsMap, setUserPostsMap] = useState<Map<string, string[]>>(new Map());
+    const [bookmarkedPostIds, setBookmarkedPostIds] = useState<string[]>([]);
 
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
@@ -81,7 +79,7 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setRefreshing(false);
         }
-    }, [token, addPosts]);
+    }, [token, user, addPosts]);
 
     const fetchExplore = useCallback(async () => {
         if (!token) return;
@@ -129,6 +127,27 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
         }
     }, [token, addPosts]);
 
+    const fetchBookmarkedPosts = useCallback(async () => {
+        if (!token || !user) return;
+
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_URL}/users/${user.id}/bookmarks`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+
+            if (response.ok) {
+                const data: Post[] = await response.json();
+                addPosts(data);
+                setBookmarkedPostIds(data.map(p => p.id));
+            }
+        } catch (error) {
+            console.error('Bookmarked posts error:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, [token, user, addPosts]);
+
     const toggleLike = useCallback(async (postId: string) => {
         if (!token || !user) return;
 
@@ -168,6 +187,43 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
             }));
         }
     }, [token, user, posts, updatePost]);
+
+    const toggleBookmark = useCallback(async (postId: string) => {
+        if (!token || !user) return;
+
+        const isBookmarked = bookmarkedPostIds.includes(postId);
+
+        // Optimistic update
+        if (isBookmarked) {
+            setBookmarkedPostIds(prev => prev.filter(id => id !== postId));
+        } else {
+            setBookmarkedPostIds(prev => [postId, ...prev]);
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/posts/${postId}/bookmark`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+
+            if (!response.ok) {
+                // Rollback on error
+                if (isBookmarked) {
+                    setBookmarkedPostIds(prev => [postId, ...prev]);
+                } else {
+                    setBookmarkedPostIds(prev => prev.filter(id => id !== postId));
+                }
+            }
+        } catch (error) {
+            console.error('Bookmark error:', error);
+            // Rollback on error
+            if (isBookmarked) {
+                setBookmarkedPostIds(prev => [postId, ...prev]);
+            } else {
+                setBookmarkedPostIds(prev => prev.filter(id => id !== postId));
+            }
+        }
+    }, [token, user, bookmarkedPostIds]);
 
     const addComment = useCallback(async (postId: string, content: string) => {
         if (!token || !user) return;
@@ -213,6 +269,7 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
 
                 setFeedPostIds(prev => prev.filter(id => id !== postId));
                 setExplorePostIds(prev => prev.filter(id => id !== postId));
+                setBookmarkedPostIds(prev => prev.filter(id => id !== postId));
                 setUserPostsMap(prev => {
                     const updated = new Map(prev);
                     updated.forEach((ids, userId) => {
@@ -227,25 +284,18 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
         }
     }, [token]);
 
-    // UPDATED: createPost now handles image upload
     const createPost = useCallback(async (content: string, imageUri?: string | null) => {
         if (!token || !user) return;
 
         try {
-            // Use FormData for multipart upload
             const formData = new FormData();
-
-            // Add content
             formData.append('content', content);
 
-            // Add image if provided
             if (imageUri) {
-                // Extract filename and determine type
                 const filename = imageUri.split('/').pop() || 'image.jpg';
                 const match = /\.(\w+)$/.exec(filename);
                 const type = match ? `image/${match[1]}` : 'image/jpeg';
 
-                // Append the image file
                 formData.append('image', {
                     uri: imageUri,
                     name: filename,
@@ -257,15 +307,12 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    // Don't set Content-Type - fetch will set it automatically with boundary for FormData
                 },
                 body: formData,
             });
 
             if (response.ok) {
                 const newPost = await response.json();
-                console.log('Server returned post:', newPost);
-                console.log('Image URL from server:', newPost.imageUrl);
 
                 setPosts(prev => {
                     const updated = new Map(prev);
@@ -291,12 +338,11 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
         }
     }, [token, user]);
 
-    // Computed values - derive arrays from master storage
     const feedPosts = useMemo(() =>
         feedPostIds.map(id => posts.get(id)).filter(Boolean) as Post[],
         [feedPostIds, posts]
     );
-    // Need to fully understand what useMemo does
+
     const explorePosts = useMemo(() =>
         explorePostIds.map(id => posts.get(id)).filter(Boolean) as Post[],
         [explorePostIds, posts]
@@ -310,16 +356,24 @@ export function PostsProvider({ children }: { children: React.ReactNode }) {
         return result;
     }, [userPostsMap, posts]);
 
+    const bookmarkedPosts = useMemo(() =>
+        bookmarkedPostIds.map(id => posts.get(id)).filter(Boolean) as Post[],
+        [bookmarkedPostIds, posts]
+    );
+
     return (
         <PostsContext.Provider value={{
             posts,
             feedPosts,
             explorePosts,
             userPosts,
+            bookmarkedPosts,
             fetchFeed,
             fetchExplore,
             fetchUserPosts,
+            fetchBookmarkedPosts,
             toggleLike,
+            toggleBookmark,
             addComment,
             deletePost,
             createPost,

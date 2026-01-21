@@ -16,10 +16,12 @@ interface PostCardProps {
     post: Post;
     onLike: (postId: string) => void;
     onComment: (postId: string, content: string) => void;
+    onBookmark?: (postId: string) => void;  // Changed from optional void return
     onDelete?: (postId: string) => void;
     currentUserId: string;
     showDelete?: boolean;
     onUserPress?: (userId: string) => void;
+    isBookmarked?: boolean;  // Add this prop
 }
 
 // Helper to get full image URL
@@ -40,10 +42,12 @@ export default function PostCard({
     post,
     onLike,
     onComment,
+    onBookmark,
     onDelete,
     currentUserId,
     showDelete = false,
-    onUserPress
+    onUserPress,
+    isBookmarked = false  // Add this
 }: PostCardProps) {
     const [showComments, setShowComments] = useState(false);
     const [newComment, setNewComment] = useState('');
@@ -75,8 +79,10 @@ export default function PostCard({
         setCommenting(false);
     };
 
-    const onBookmark = async () => {
-        return;
+    const handleBookmark = async () => {
+        if (onBookmark) {
+            await onBookmark(post.id);
+        }
     };
 
     const formatDate = (dateString: string) => {
@@ -94,6 +100,9 @@ export default function PostCard({
         if (diffDays < 7) return `${diffDays}d ago`;
         return date.toLocaleDateString();
     };
+
+    // Update the bookmark button to show filled/outline based on state:
+    // const isBookmarked = post.bookmarks?.includes(currentUserId) || false;
 
     return (
         <View style={styles.container}>
@@ -175,12 +184,12 @@ export default function PostCard({
 
                 <TouchableOpacity
                     style={styles.actionButton}
-                    onPress={() => onBookmark()}
+                    onPress={handleBookmark}
                 >
                     <Ionicons
-                        name="bookmark-outline"
+                        name={isBookmarked ? "bookmark" : "bookmark-outline"}
                         size={24}
-                        color="#666"
+                        color={isBookmarked ? "#000" : "#666"}
                     />
                 </TouchableOpacity>
             </View>

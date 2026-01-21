@@ -24,7 +24,9 @@ export default function ExploreScreen() {
         refreshing: contextRefreshing,
         toggleLike,
         addComment,
-        fetchExplore
+        fetchExplore,
+        toggleBookmark,
+        bookmarkedPosts
     } = usePosts();
     const [users, setUsers] = useState<User[]>([]);
     const [searchLoading, setSearchLoading] = useState(false);
@@ -157,7 +159,9 @@ export default function ExploreScreen() {
                             post={item}
                             onLike={toggleLike}
                             onComment={addComment}
+                            onBookmark={toggleBookmark}
                             currentUserId={user.id}
+                            isBookmarked={bookmarkedPosts.some(p => p.id === item.id)}
                         />
                     )}
                     refreshControl={

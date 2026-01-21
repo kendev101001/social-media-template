@@ -29,15 +29,30 @@ interface ProfileContentProps {
     showBackButton?: boolean;
 }
 
+// Add this type for the active tab
+type ProfileTab = 'posts' | 'bookmarks';
+
+
 export default function ProfileContent({ userId, showBackButton = false }: ProfileContentProps) {
     const { user: currentUser, token } = useAuth();
-    const { userPosts, fetchUserPosts, deletePost, toggleLike, addComment, refreshing } = usePosts();
+    // Add fetchBookmarkedPosts to the destructured usePosts:
+    const {
+        userPosts,
+        bookmarkedPosts,
+        fetchUserPosts,
+        fetchBookmarkedPosts,
+        deletePost,
+        toggleLike,
+        toggleBookmark,
+        addComment,
+        refreshing
+    } = usePosts();
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [stats, setStats] = useState<ProfileStats>({ posts: 0, followers: 0, following: 0 });
     const [isFollowing, setIsFollowing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [followLoading, setFollowLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState('main');
+    const [activeTab, setActiveTab] = useState<ProfileTab>('posts');
 
     // Determine if this is the current user's own profile
     const isOwnProfile = currentUser?.id === userId;
@@ -48,7 +63,6 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
         setLoading(true);
         try {
             if (isOwnProfile && currentUser) {
-                // For own profile, use data from auth context + fetch stats
                 setProfile({
                     id: currentUser.id,
                     username: currentUser.username,
@@ -62,6 +76,7 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
                         headers: { 'Authorization': `Bearer ${token}` },
                     }),
                     fetchUserPosts(userId),
+                    fetchBookmarkedPosts(), // Add this
                 ]);
                 if (statsRes.ok) {
                     const statsData = await statsRes.json();
@@ -93,7 +108,7 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
         } finally {
             setLoading(false);
         }
-    }, [userId, token, isOwnProfile, currentUser, fetchUserPosts]);
+    }, [userId, token, isOwnProfile, currentUser, fetchUserPosts, fetchBookmarkedPosts]);
 
     useEffect(() => {
         fetchProfileData();
@@ -150,7 +165,10 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
     };
 
     // Get posts for this user
-    const posts = userPosts.get(userId) || [];
+    const posts = activeTab === 'posts'
+        ? (userPosts.get(userId) || [])
+        : bookmarkedPosts;
+
 
     // Loading state
     if (loading) {
@@ -174,6 +192,8 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
             </View>
         );
     }
+
+
 
     return (
         <View style={styles.container}>
@@ -278,41 +298,47 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
                     }
                 </View>
 
-                {/* Tab Bar */}
-                <Text style={styles.sectionTitle}>
-                    {isOwnProfile ? 'My Posts' : 'Posts'}
-                </Text>
-                {/* <View style={styles.tabBar}>
-                    <TouchableOpacity
-                        style={[styles.tab, activeTab === 'main' && styles.activeTab]}
-                        onPress={() => setActiveTab('main')}
-                    >
-                        <Feather name="menu" size={24} color={activeTab === 'main' ? '#000' : '#999'} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.tab, activeTab === 'media' && styles.activeTab]}
-                        onPress={() => setActiveTab('media')}
-                    >
-                        <MaterialIcons name="insert-photo" size={24} color={activeTab === 'media' ? '#000' : '#999'} />
-                    </TouchableOpacity>
-                    {isOwnProfile && (
+                {/* Tab Bar - Only show for own profile */}
+                {isOwnProfile && (
+                    <View style={styles.tabBar}>
                         <TouchableOpacity
-                            style={[styles.tab, activeTab === 'bookmarked' && styles.activeTab]}
-                            onPress={() => setActiveTab('bookmarked')}
+                            style={[styles.tab, activeTab === 'posts' && styles.activeTab]}
+                            onPress={() => setActiveTab('posts')}
                         >
-                            <Ionicons name="bookmark-outline" size={24} color={activeTab === 'bookmarked' ? '#000' : '#999'} />
+                            <Feather name="grid" size={24} color={activeTab === 'posts' ? '#000' : '#999'} />
                         </TouchableOpacity>
-                    )}
-                </View> */}
+                        <TouchableOpacity
+                            style={[styles.tab, activeTab === 'bookmarks' && styles.activeTab]}
+                            onPress={() => setActiveTab('bookmarks')}
+                        >
+                            <Ionicons
+                                name="bookmark-outline"
+                                size={24}
+                                color={activeTab === 'bookmarks' ? '#000' : '#999'}
+                            />
+                        </TouchableOpacity>
+                    </View>
+                )}
 
-                {/* Posts */}
+                {!isOwnProfile && (
+                    <Text style={styles.sectionTitle}>Posts</Text>
+                )}
+
+                {/* Posts Section */}
                 <View style={styles.postsSection}>
                     {posts.length === 0 ? (
                         <View style={styles.emptyContainer}>
-                            <Text style={styles.emptyText}>No posts yet</Text>
-                            {isOwnProfile && (
+                            <Text style={styles.emptyText}>
+                                {activeTab === 'posts' ? 'No posts yet' : 'No bookmarks yet'}
+                            </Text>
+                            {isOwnProfile && activeTab === 'posts' && (
                                 <Text style={styles.emptySubtext}>
                                     Tap the + button to create your first post
+                                </Text>
+                            )}
+                            {isOwnProfile && activeTab === 'bookmarks' && (
+                                <Text style={styles.emptySubtext}>
+                                    Posts you bookmark will appear here
                                 </Text>
                             )}
                         </View>
@@ -323,9 +349,11 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
                                 post={post}
                                 onLike={toggleLike}
                                 onComment={addComment}
-                                onDelete={isOwnProfile ? handleDeletePost : undefined}
+                                onBookmark={toggleBookmark}
+                                onDelete={isOwnProfile && activeTab === 'posts' ? handleDeletePost : undefined}
                                 currentUserId={currentUser!.id}
-                                showDelete={isOwnProfile}
+                                showDelete={isOwnProfile && activeTab === 'posts'}
+                                isBookmarked={bookmarkedPosts.some(p => p.id === post.id)}
                             />
                         ))
                     )}
@@ -559,24 +587,6 @@ const styles = StyleSheet.create({
         color: '#333'
     },
 
-    tabBar: {
-        flexDirection: 'row',
-        borderTopWidth: 0.5,
-        borderTopColor: '#dbdbdb'
-    },
-
-    tab: {
-        flex: 1,
-        alignItems: 'center',
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: 'transparent'
-    },
-
-    activeTab: {
-        borderBottomColor: '#000'
-    },
-
     postsSection: {
         flex: 1,
         paddingVertical: 10
@@ -618,5 +628,25 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center'
+    },
+
+    tabBar: {
+        flexDirection: 'row',
+        borderTopWidth: 0.5,
+        borderTopColor: '#dbdbdb',
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#dbdbdb',
+    },
+
+    tab: {
+        flex: 1,
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: 'transparent',
+    },
+
+    activeTab: {
+        borderBottomColor: '#000',
     },
 });
