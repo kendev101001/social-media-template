@@ -1,6 +1,7 @@
 import { API_URL } from '@/config/api';
 import { Post } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
     Image,
@@ -18,6 +19,7 @@ interface PostCardProps {
     onDelete?: (postId: string) => void;
     currentUserId: string;
     showDelete?: boolean;
+    onUserPress?: (userId: string) => void;
 }
 
 // Helper to get full image URL
@@ -40,14 +42,9 @@ export default function PostCard({
     onComment,
     onDelete,
     currentUserId,
-    showDelete = false
+    showDelete = false,
+    onUserPress
 }: PostCardProps) {
-    // if (post.imageUrl) {
-    //     console.log('Post has imageUrl:', post.imageUrl);
-    //     console.log('API_URL is:', API_URL);
-    //     console.log('Full image URL:', `${API_URL}${post.imageUrl}`);
-    // }
-
     const [showComments, setShowComments] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [commenting, setCommenting] = useState(false);
@@ -56,6 +53,18 @@ export default function PostCard({
     const isLiked = post.likes.includes(currentUserId);
     const isOwnPost = post.userId === currentUserId;
     const imageUrl = getImageUrl(post.imageUrl);
+
+    const handleUserPress = () => {
+        if (onUserPress) {
+            onUserPress(post.userId);
+        } else {
+            // Default navigation behavior
+            router.push({
+                pathname: '/(tabs)/profile/[userId]',
+                params: { userId: post.userId }
+            });
+        }
+    };
 
     const handleComment = async () => {
         if (!newComment.trim()) return;
@@ -89,19 +98,26 @@ export default function PostCard({
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <View style={styles.userInfo}>
+                <TouchableOpacity
+                    style={styles.userInfo}
+                    onPress={handleUserPress}
+                    activeOpacity={0.7}
+                >
                     <View style={styles.avatar}>
                         <Text style={styles.avatarText}>
                             {post.username.charAt(0).toUpperCase()}
                         </Text>
                     </View>
-                    <View>
+                    <View style={styles.userTextInfo}>
                         <Text style={styles.username}>@{post.username}</Text>
                         <Text style={styles.timestamp}>{formatDate(post.createdAt)}</Text>
                     </View>
-                </View>
+                </TouchableOpacity>
                 {showDelete && isOwnPost && onDelete && (
-                    <TouchableOpacity onPress={() => onDelete(post.id)}>
+                    <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={() => onDelete(post.id)}
+                    >
                         <Ionicons name="trash-outline" size={20} color="#ff3b30" />
                     </TouchableOpacity>
                 )}
@@ -112,7 +128,7 @@ export default function PostCard({
                 <Text style={styles.content}>{post.content}</Text>
             ) : null}
 
-            {/* Post image - NEW */}
+            {/* Post image */}
             {imageUrl && !imageError && (
                 <View style={styles.imageContainer}>
                     <Image
@@ -225,29 +241,37 @@ const styles = StyleSheet.create({
     userInfo: {
         flexDirection: 'row',
         alignItems: 'center',
+        flex: 1,
     },
     avatar: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: '#007AFF',
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: '#f0f0f0',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 10,
+        marginRight: 12,
     },
     avatarText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#666',
+    },
+    userTextInfo: {
+        flex: 1,
     },
     username: {
+        fontSize: 16,
         fontWeight: '600',
-        fontSize: 14,
+        color: '#000',
     },
     timestamp: {
-        fontSize: 12,
+        fontSize: 13,
         color: '#666',
         marginTop: 2,
+    },
+    deleteButton: {
+        padding: 4,
     },
     content: {
         fontSize: 15,
@@ -255,7 +279,6 @@ const styles = StyleSheet.create({
         color: '#333',
         marginBottom: 10,
     },
-    // NEW: Image styles
     imageContainer: {
         marginVertical: 10,
         borderRadius: 12,
