@@ -2,13 +2,13 @@
 import PostCard from '@/components/PostCard';
 import { API_URL } from '@/config/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMessages } from '@/contexts/MessagesContext';
 import { usePosts } from '@/contexts/PostsContext';
 import { Feather, Ionicons, Octicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Href, router } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
 interface ProfileStats {
     posts: number;
     followers: number;
@@ -35,7 +35,6 @@ type ProfileTab = 'posts' | 'bookmarks';
 
 export default function ProfileContent({ userId, showBackButton = false }: ProfileContentProps) {
     const { user: currentUser, token } = useAuth();
-    // Add fetchBookmarkedPosts to the destructured usePosts:
     const {
         userPosts,
         bookmarkedPosts,
@@ -45,8 +44,9 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
         toggleLike,
         toggleBookmark,
         addComment,
-        refreshing
+        refreshing,
     } = usePosts();
+    const { getOrCreateConversation } = useMessages();
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [stats, setStats] = useState<ProfileStats>({ posts: 0, followers: 0, following: 0 });
     const [isFollowing, setIsFollowing] = useState(false);
@@ -114,6 +114,20 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
         fetchProfileData();
     }, [fetchProfileData]);
 
+    // Error state
+    if (!profile) {
+        return (
+            <View style={styles.loadingContainer}>
+                <Text style={styles.errorText}>User not found</Text>
+                {showBackButton && (
+                    <TouchableOpacity style={styles.errorBackButton} onPress={() => router.back()}>
+                        <Text style={styles.errorBackButtonText}>Go Back</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+        );
+    }
+
     // Handle follow/unfollow
     const handleToggleFollow = async () => {
         if (!userId || !token || isOwnProfile) return;
@@ -157,6 +171,23 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
         ]);
     };
 
+    const handleMessagePress = async () => {
+        if (isOwnProfile) {
+            router.push('/messages');
+        } else {
+            try {
+                const conversation = await getOrCreateConversation(profile.id);
+                router.push({
+                    pathname: '/messages/[conversationId]',
+                    params: { conversationId: conversation.id },
+                });
+            } catch (error) {
+                console.error('Error creating conversation:', error);
+                Alert.alert('Error', 'Failed to start conversation');
+            }
+        }
+    };
+
     // Format large numbers
     const formatNumber = (num: number) => {
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -179,27 +210,10 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
         );
     }
 
-    // Error state
-    if (!profile) {
-        return (
-            <View style={styles.loadingContainer}>
-                <Text style={styles.errorText}>User not found</Text>
-                {showBackButton && (
-                    <TouchableOpacity style={styles.errorBackButton} onPress={() => router.back()}>
-                        <Text style={styles.errorBackButtonText}>Go Back</Text>
-                    </TouchableOpacity>
-                )}
-            </View>
-        );
-    }
-
-
-
     return (
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                {/* Back Button - only shown when navigating to other profiles */}
                 {showBackButton && (
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color="#000" />
@@ -207,18 +221,17 @@ export default function ProfileContent({ userId, showBackButton = false }: Profi
                 )}
                 <View style={[styles.usernameHeader, showBackButton && styles.usernameHeaderWithBack]}>
                     <Text style={styles.headerUsername}>{profile.username}</Text>
-                    {isOwnProfile && !showBackButton}
                 </View>
-                {/* Settings icon - only for own profile */}
-                {isOwnProfile && (
-                    <View style={styles.headerRight}>
+                <View style={styles.headerRight}>
+                    <TouchableOpacity style={styles.headerIcon} onPress={handleMessagePress}>
+                        <Ionicons name="chatbubble-outline" size={24} color="black" />
+                    </TouchableOpacity>
+                    {isOwnProfile && (
                         <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/settings' as Href)}>
                             <Octicons name="gear" size={24} color="black" />
                         </TouchableOpacity>
-                    </View>
-                )}
-                {/* Spacer for layout when viewing others' profiles */}
-                {!isOwnProfile && <View style={styles.headerRight} />}
+                    )}
+                </View>
             </View>
 
             <ScrollView
@@ -425,6 +438,17 @@ const styles = StyleSheet.create({
         borderBottomColor: '#dbdbdb'
     },
 
+    headerRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        minWidth: 44
+    },
+
+    headerIcon: {
+        marginLeft: 20,
+        padding: 4
+    },
+
     backButton: {
         padding: 4,
         marginRight: 8
@@ -444,16 +468,6 @@ const styles = StyleSheet.create({
     headerUsername: {
         fontSize: 20,
         fontWeight: '700'
-    },
-
-    headerRight: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        minWidth: 44
-    },
-
-    headerIcon: {
-        marginLeft: 20
     },
 
     profileSection: {

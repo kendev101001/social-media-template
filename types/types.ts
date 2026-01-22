@@ -42,3 +42,29 @@ export interface ProfileData {
     bio?: string;
     link?: string;
 }
+
+// Messaging types (merged for future group support)
+export interface Message {
+    id: string;
+    conversationId: string;
+    senderId: string;
+    senderUsername?: string;
+    content: string;
+    createdAt: string;
+}
+
+export interface ConversationParticipant {
+    id: string;
+    username: string;
+    name?: string;
+}
+
+export interface Conversation {
+    id: string;
+    type: 'direct' | 'group';
+    name?: string;
+    participants: ConversationParticipant[];
+    lastMessage?: Message;
+    createdAt: string;
+    lastMessageAt?: string;
+}

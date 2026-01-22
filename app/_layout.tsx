@@ -1,5 +1,6 @@
 
 import { AuthProvider } from '@/contexts/AuthContext';
+import { MessagesProvider } from '@/contexts/MessagesContext';
 import { PostsProvider } from '@/contexts/PostsContext';
 import { Stack } from 'expo-router';
 
@@ -7,15 +8,18 @@ export default function RootLayout() {
     return (
         <AuthProvider>
             <PostsProvider>
-                <Stack>
-                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen name="index" options={{ headerShown: false }} />
-                    <Stack.Screen name="settings" options={{ headerShown: false }} />
-                    <Stack.Screen name="new-post-modal" options={{ presentation: 'modal', headerShown: false }} />
-                    <Stack.Screen name="follows-modal" options={{ presentation: 'modal', headerShown: false }} />
-                    <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
-                </Stack>
+                <MessagesProvider>
+                    <Stack>
+                        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                        <Stack.Screen name="index" options={{ headerShown: false }} />
+                        <Stack.Screen name="settings" options={{ headerShown: false }} />
+                        <Stack.Screen name="new-post-modal" options={{ presentation: 'modal', headerShown: false }} />
+                        <Stack.Screen name="follows-modal" options={{ presentation: 'modal', headerShown: false }} />
+                        <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
+                        <Stack.Screen name="messages" options={{ headerShown: false }} />
+                    </Stack>
+                </MessagesProvider>
             </PostsProvider>
         </AuthProvider>
     );
